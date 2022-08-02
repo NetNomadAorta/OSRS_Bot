@@ -69,42 +69,6 @@ def click_and_coordinates():
         return points[0], buttons[0]
     else:
         return "null", "null"
-
-
-def window_capture():
-    w = 5120
-    h = 1440
-    
-    # hwnd = win32gui.FindWindow(None, windowname)
-    hwnd = None
-    
-    wDC = win32gui.GetWindowDC(hwnd)
-    dcObj = win32ui.CreateDCFromHandle(wDC)
-    cDC = dcObj.CreateCompatibleDC()
-    dataBitMap = win32ui.CreateBitmap()
-    dataBitMap.CreateCompatibleBitmap(dcObj, w, h)
-    cDC.SelectObject(dataBitMap)
-    cDC.BitBlt((0, 0), (w, h), dcObj, (0, 0), win32con.SRCCOPY)
-    
-    # Save the screenshot
-    # dataBitMap.SaveBitmapFile(cDC, 'debug.bmp')
-    signedIntsArray = dataBitMap.GetBitmapBits(True)
-    img = np.fromstring(signedIntsArray, dtype='uint8')
-    img.shape = (h, w, 4)
-    
-    # Free Resource
-    dcObj.DeleteDC()
-    cDC.DeleteDC()
-    win32gui.ReleaseDC(hwnd, wDC)
-    win32gui.DeleteObject(dataBitMap.GetHandle())
-    
-    # Drop the alpha channel, or cv.matchTemplate()
-    img = img[...,:3]
-    
-    img = np.ascontiguousarray(img)
-    
-    return img
-    
     
 
 
