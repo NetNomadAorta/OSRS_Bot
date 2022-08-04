@@ -18,6 +18,14 @@ import random
 import win32api, win32con
 import numpy as np
 import time
+from math import sqrt
+
+
+# User parameters
+SAVE_NAME_OD = "./Models/OSRS_Mining-0.model"
+DATASET_PATH = "./Training_Data/" + SAVE_NAME_OD.split("./Models/",1)[1].split("-",1)[0] +"/"
+IMAGE_SIZE              = int(re.findall(r'\d+', SAVE_NAME_OD)[-1] ) # Row and column number 
+MIN_SCORE               = 0.7
 
 
 def click(x,y):
@@ -33,8 +41,6 @@ def drop_inventory():
     # Finds window size and where coordinates starts and ends in window
     x_screen_start = screenshot_sizer.size[0]-2100
     y_screen_start = 0
-    x_screen_stop = screenshot_sizer.size[0]
-    y_screen_stop = screenshot_sizer.size[1]
 
     # Coordinates of first inventory slot relative to screen start
     inv_start_x = 1800
@@ -64,57 +70,180 @@ def drop_inventory():
     
 
 
-def mining():
-    # Takes screenshot to check size of screen
-    screenshot_sizer = ImageGrab.grab()
-    
+def mining(screenshot_sizer, ii):
     # Finds window size and where coordinates starts and ends in window
     x_screen_start = screenshot_sizer.size[0]-2100
     y_screen_start = 0
     
-    x_temp_1 = int((x_screen_start+1025)*2/3)
-    y_temp_1 = int((y_screen_start+625)*2/3)
-    x_temp_2 = int((x_screen_start+950)*2/3)
-    y_temp_2 = int((y_screen_start+700)*2/3)
+    screenshot = ImageGrab.grab(bbox =(screenshot_sizer.size[0]-2100, 
+                                       0,
+                                       screenshot_sizer.size[0], 
+                                       screenshot_sizer.size[1]
+                                       )
+                                )
     
-    time_set = 3
+    screenshot.save('./Images/Screenshots/image-{}.jpg'.format(ii))
     
-    for i in range(9):
-        win32api.SetCursorPos((x_temp_1+10, y_temp_1))
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_1, y_temp_1, 0, 0)
-        time.sleep(0.1)
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_1, y_temp_1, 0, 0)
-        time.sleep(0.01)
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_1, y_temp_1, 0, 0)
-        time.sleep(0.1)
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_1, y_temp_1, 0, 0)
-        time.sleep(time_set)
-        time.sleep(random.randrange(2))
+    screenshot_cv2 = np.array(screenshot)
+    screenshot_cv2 = cv2.cvtColor(screenshot_cv2, cv2.COLOR_BGR2RGB)
+    
+    transformed_image = transforms_1(image=screenshot_cv2)
+    transformed_image = transformed_image["image"]
+    
+    with torch.no_grad():
+        prediction_1 = model_1([(transformed_image/255).to(device)])
+        pred_1 = prediction_1[0]
+    
+    dieCoordinates = pred_1['boxes'][pred_1['scores'] > MIN_SCORE]
+    die_class_indexes = pred_1['labels'][pred_1['scores'] > MIN_SCORE]
+    # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
+    die_scores = pred_1['scores'][pred_1['scores'] > MIN_SCORE]
+    
+    enemy_coordinates_list = dieCoordinates[die_class_indexes > 0].tolist() # SHOULD "== 1].tolist()" FOR ENEMY
+    
+    die_class_indexes = die_class_indexes.tolist()
+    # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
+    die_scores = die_scores.tolist()
+    
+    if len(enemy_coordinates_list) > 0:
+        center_enemy_x_len_list = []
+        center_enemy_y_len_list = []
+        for enemy_coordinates in enemy_coordinates_list:
+            center_enemy_x = int(enemy_coordinates[0]
+                                +(enemy_coordinates[2]-enemy_coordinates[0])/2
+                                )
+            center_enemy_y = int(enemy_coordinates[1]
+                                +(enemy_coordinates[3]-enemy_coordinates[1])/2
+                                )
+            center_enemy_x_len_list.append(center_enemy_x)
+            center_enemy_y_len_list.append(center_enemy_y)
         
-        win32api.SetCursorPos((x_temp_2, y_temp_2))
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_2, y_temp_2, 0, 0)
-        time.sleep(0.1)
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_2, y_temp_2, 0, 0)
-        time.sleep(0.01)
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_2, y_temp_2, 0, 0)
-        time.sleep(0.1)
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_2, y_temp_2, 0, 0)
-        time.sleep(time_set)
-        time.sleep(random.randrange(2))
+        hypotenuse_list = []
+        most_centered_hypotenuse = 100000
+        for index, enemy_coordinates in enumerate(enemy_coordinates_list):
+            hypotenuse = sqrt(center_enemy_y_len_list[index]**2 + center_enemy_x_len_list[index]**2)
+            if hypotenuse < most_centered_hypotenuse:
+                most_centered_hypotenuse = hypotenuse
+                most_centered_to_enemy_x = center_enemy_x_len_list[index]
+                most_centered_to_enemy_y = center_enemy_y_len_list[index]
         
-        win32api.SetCursorPos((x_temp_1+10, y_temp_1+120))
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_2, y_temp_2, 0, 0)
+        x_move = int( (most_centered_to_enemy_x + x_screen_start) * 2/3 )
+        y_move = int( (most_centered_to_enemy_y + y_screen_start) * 2/3 )
+        
+        time_set = 3
+        
+        winsound.Beep(frequency, duration)
+        win32api.SetCursorPos((x_move, y_move))
+        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_move, y_move, 0, 0)
         time.sleep(0.1)
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_2, y_temp_2, 0, 0)
+        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_move, y_move, 0, 0)
         time.sleep(0.01)
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_2, y_temp_2, 0, 0)
+        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_move, y_move, 0, 0)
         time.sleep(0.1)
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_2, y_temp_2, 0, 0)
+        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_move, y_move, 0, 0)
         time.sleep(time_set)
         time.sleep(random.randrange(2))
+    
+    
+    # x_temp_1 = int((x_screen_start+1025)*2/3)
+    # y_temp_1 = int((y_screen_start+625)*2/3)
+    # x_temp_2 = int((x_screen_start+950)*2/3)
+    # y_temp_2 = int((y_screen_start+700)*2/3)
+    
+    # time_set = 3
+    
+    # for i in range(9):
+    #     win32api.SetCursorPos((x_temp_1+10, y_temp_1))
+    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_1, y_temp_1, 0, 0)
+    #     time.sleep(0.1)
+    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_1, y_temp_1, 0, 0)
+    #     time.sleep(0.01)
+    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_1, y_temp_1, 0, 0)
+    #     time.sleep(0.1)
+    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_1, y_temp_1, 0, 0)
+    #     time.sleep(time_set)
+    #     time.sleep(random.randrange(2))
+        
+    #     win32api.SetCursorPos((x_temp_2, y_temp_2))
+    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_2, y_temp_2, 0, 0)
+    #     time.sleep(0.1)
+    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_2, y_temp_2, 0, 0)
+    #     time.sleep(0.01)
+    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_2, y_temp_2, 0, 0)
+    #     time.sleep(0.1)
+    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_2, y_temp_2, 0, 0)
+    #     time.sleep(time_set)
+    #     time.sleep(random.randrange(2))
+        
+    #     win32api.SetCursorPos((x_temp_1+10, y_temp_1+120))
+    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_2, y_temp_2, 0, 0)
+    #     time.sleep(0.1)
+    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_2, y_temp_2, 0, 0)
+    #     time.sleep(0.01)
+    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_2, y_temp_2, 0, 0)
+    #     time.sleep(0.1)
+    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_2, y_temp_2, 0, 0)
+    #     time.sleep(time_set)
+    #     time.sleep(random.randrange(2))
 
-for i in range(100):
-    mining()
+
+
+# Main()
+dataset_path = DATASET_PATH
+
+# Windows beep settings
+frequency = 700  # Set Frequency To 2500 Hertz
+duration = 80  # Set Duration To 1000 ms == 1 second
+
+
+
+#load classes
+coco = COCO(os.path.join(dataset_path, "train", "_annotations.coco.json"))
+categories = coco.cats
+n_classes_1 = len(categories.keys())
+categories
+
+classes_1 = [i[1]['name'] for i in categories.items()]
+classes_1
+
+
+
+# lets load the faster rcnn model
+model_1 = models.detection.fasterrcnn_resnet50_fpn(pretrained=True, box_detections_per_img=500)
+in_features = model_1.roi_heads.box_predictor.cls_score.in_features # we need to change the head
+model_1.roi_heads.box_predictor = models.detection.faster_rcnn.FastRCNNPredictor(in_features, n_classes_1)
+
+# Loads last saved checkpoint
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+if torch.cuda.is_available():
+    map_location=lambda storage, loc: storage.cuda()
+else:
+    map_location='cpu'
+
+if os.path.isfile(SAVE_NAME_OD):
+    checkpoint = torch.load(SAVE_NAME_OD, map_location=map_location)
+    model_1.load_state_dict(checkpoint)
+
+model_1 = model_1.to(device)
+
+model_1.eval()
+torch.cuda.empty_cache()
+
+transforms_1 = A.Compose([
+    # A.Resize(IMAGE_SIZE, IMAGE_SIZE), # our input size can be 600px
+    # A.Rotate(limit=[90,90], always_apply=True),
+    ToTensorV2()
+])
+
+
+# Takes screenshot to check size of screen
+screenshot_sizer = ImageGrab.grab()
+
+
+for i in range(1):
+    for ii in range(26):
+        mining(screenshot_sizer, ii)
     
     drop_inventory()
 

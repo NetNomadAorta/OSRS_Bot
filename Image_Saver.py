@@ -25,7 +25,7 @@ for i in range(5):
     
     screenshot.save('./Images/Screenshots/image-{}.jpg'.format(i))
     
-    time.sleep(0.5)
+    time.sleep(1)
     winsound.Beep(frequency, 40)
     
 winsound.Beep(frequency-100, duration)

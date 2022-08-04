@@ -31,7 +31,7 @@ SAVE_ANNOTATED_IMAGES   = True
 SAVE_ORIGINAL_IMAGE     = False
 SAVE_CROPPED_IMAGES     = False
 DIE_SPACING_SCALE       = 0.99
-MIN_SCORE               = 0.5
+MIN_SCORE               = 0.7
 
 
 def time_convert(sec):
@@ -148,7 +148,7 @@ model_1.eval()
 torch.cuda.empty_cache()
 
 transforms_1 = A.Compose([
-    A.Resize(IMAGE_SIZE, IMAGE_SIZE), # our input size can be 600px
+    # A.Resize(IMAGE_SIZE, IMAGE_SIZE), # our input size can be 600px
     # A.Rotate(limit=[90,90], always_apply=True),
     ToTensorV2()
 ])
@@ -182,7 +182,7 @@ for image_name in os.listdir(TO_PREDICT_PATH):
     dieCoordinates = pred_1['boxes'][pred_1['scores'] > MIN_SCORE]
     die_class_indexes = pred_1['labels'][pred_1['scores'] > MIN_SCORE]
     # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
-    die_scores = pred_1['scores'][pred_1['scores'] > MIN_SCORE]
+    die_scores = pred_1['scores'][pred_1['scores'] > MIN_SCORE].tolist()
     
     # # DELETES NOT WANTED LABELS
     # for index, class_index in enumerate(die_class_indexes):
@@ -196,7 +196,7 @@ for image_name in os.listdir(TO_PREDICT_PATH):
         predicted_image = draw_bounding_boxes(transformed_image,
             boxes = dieCoordinates,
             # labels = [classes_1[i] for i in die_class_indexes], 
-            # labels = [str(round(i,2)) for i in die_scores], # SHOWS SCORE IN LABEL
+            labels = [str(round(i, 2)) for i in die_scores], # SHOWS SCORE IN LABEL
             width = line_width,
             colors = [color_list[i] for i in die_class_indexes]
             )
