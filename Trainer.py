@@ -20,13 +20,13 @@ from albumentations.pytorch import ToTensorV2
 
 
 # User parameters
-SAVE_NAME      = "./Models/Splitgate-1.model"
+SAVE_NAME      = "./Models/OSRS_Mining-0.model"
 USE_CHECKPOINT = True
-# IMAGE_SIZE     = int(re.findall(r'\d+', SAVE_NAME)[-1] ) # Row and column size 
+IMAGE_SIZE     = int(re.findall(r'\d+', SAVE_NAME)[-1] ) # Row and column size 
 DATASET_PATH   = "./Training_Data/" + SAVE_NAME.split("./Models/",1)[1].split("-",1)[0] +"/"
 NUMBER_EPOCH   = 1000
-BATCH_SIZE     = 32
-LEARNING_RATE  = 0.00001*BATCH_SIZE # Default: Work_PC: 0.0001*BATCH_SIZE (WITH RESNET50 MODEL! NOT MOBIlENET)
+BATCH_SIZE     = 2
+LEARNING_RATE  = 0.00001*BATCH_SIZE # Default: Work_PC: 0.0001*BATCH_SIZE
 
 # Transformation Parameters:
 BLUR_PROB           = 0.05  # Default: 0.05 
@@ -168,7 +168,7 @@ train_dataset = Object_Detection(root=dataset_path, transforms=get_transforms(Tr
 
 
 # lets load the faster rcnn model
-model = models.detection.fasterrcnn_mobilenet_v3_large_fpn(pretrained=True)
+model = models.detection.fasterrcnn_resnet50_fpn(pretrained=True, box_detections_per_img=500)
 # model = models.detection.fasterrcnn_resnet50_fpn_v2(pretrained=True) # HOW TO MAKE THIS ONE EXIST
 in_features = model.roi_heads.box_predictor.cls_score.in_features # we need to change the head
 model.roi_heads.box_predictor = models.detection.faster_rcnn.FastRCNNPredictor(in_features, n_classes)
@@ -262,16 +262,24 @@ def train_one_epoch(model, optimizer, loader, device, epoch):
 num_epochs = NUMBER_EPOCH
 prev_saved_all_losses = 100
 prev_saved_obj_loss = 100
+prev_saved_weighted_loss = 100
 
 for epoch in range(num_epochs):
     all_losses, obj_loss = train_one_epoch(model, optimizer, train_loader, device, epoch)
+    weighted_loss = all_losses + 9*obj_loss
     
-    # Saves model
-    if (obj_loss < prev_saved_obj_loss 
-        or all_losses < (prev_saved_all_losses*0.90) ): # DEfault 0.85
+    # Saves model - version 2 - can comment out if wanted
+    if weighted_loss < prev_saved_weighted_loss:
         torch.save(model.state_dict(), SAVE_NAME)
-        prev_saved_obj_loss = obj_loss
-        prev_saved_all_losses = all_losses
+        print("   Saved model!")
+        prev_saved_weighted_loss = weighted_loss
+    
+    # # Saves model
+    # if (obj_loss < prev_saved_obj_loss 
+    #     or all_losses < (prev_saved_all_losses*0.9) ): # DEfault 0.85
+    #     torch.save(model.state_dict(), SAVE_NAME)
+    #     prev_saved_obj_loss = obj_loss
+    #     prev_saved_all_losses = all_losses
 
 
 torch.cuda.empty_cache()
