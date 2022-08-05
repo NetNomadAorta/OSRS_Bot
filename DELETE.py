@@ -7,7 +7,7 @@ import re
 
 # User Parameters/Constants to Set
 DATA_DIR_1 = "./0-All/"
-DATA_DIR_2 = "./0-cont_missh_only/"
+DATA_DIR_2 = "./0-only_misshapen/"
 KEEP_ONLY_DEFECTS = False # Will only keep images of defects in AA_NoDefect folder or first folder
 
 

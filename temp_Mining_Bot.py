@@ -11,6 +11,7 @@ import time
 from pycocotools.coco import COCO
 # Now, we will define our transforms
 from albumentations.pytorch import ToTensorV2
+from torchvision.utils import draw_bounding_boxes
 import shutil
 from PIL import ImageGrab
 import winsound
@@ -19,6 +20,8 @@ import win32api, win32con
 import numpy as np
 import time
 from math import sqrt
+from torchvision.utils import save_image
+import sys
 
 
 # User parameters
@@ -70,22 +73,20 @@ def drop_inventory():
     
 
 
-def mining(screenshot_sizer, ii):
-    # Finds window size and where coordinates starts and ends in window
-    x_screen_start = screenshot_sizer.size[0]-2100
-    y_screen_start = 0
+def mining(x_screen_start, y_screen_start, ii, stop_index):
     
-    screenshot = ImageGrab.grab(bbox =(screenshot_sizer.size[0]-2100, 
+    # winsound.Beep(frequency, duration)
+    temp_screenshot = ImageGrab.grab(bbox =(screenshot_sizer.size[0]-2100, 
                                        0,
-                                       screenshot_sizer.size[0], 
+                                       screenshot_sizer.size[0]-350, 
                                        screenshot_sizer.size[1]
                                        )
                                 )
     
-    screenshot.save('./Images/Screenshots/image-{}.jpg'.format(ii))
+    temp_screenshot.save('./Images/Screenshots/image-{}.jpg'.format(ii))
     
-    screenshot_cv2 = np.array(screenshot)
-    screenshot_cv2 = cv2.cvtColor(screenshot_cv2, cv2.COLOR_BGR2RGB)
+    screenshot_cv2 = np.array(temp_screenshot)
+    # screenshot_cv2 = cv2.cvtColor(screenshot_cv2, cv2.COLOR_BGR2RGB)
     
     transformed_image = transforms_1(image=screenshot_cv2)
     transformed_image = transformed_image["image"]
@@ -105,6 +106,15 @@ def mining(screenshot_sizer, ii):
     # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
     die_scores = die_scores.tolist()
     
+    # predicted_image = draw_bounding_boxes(transformed_image,
+    #     boxes = dieCoordinates,
+    #     # labels = [classes_1[i] for i in die_class_indexes], 
+    #     # labels = [str(round(i,2)) for i in die_scores], # SHOWS SCORE IN LABEL
+    #     width = 2,
+    #     colors = "red"
+    #     )
+    # save_image((predicted_image/255), './Images/Screenshots/image-{}.jpg'.format(ii))
+    
     if len(enemy_coordinates_list) > 0:
         center_enemy_x_len_list = []
         center_enemy_y_len_list = []
@@ -118,7 +128,6 @@ def mining(screenshot_sizer, ii):
             center_enemy_x_len_list.append(center_enemy_x)
             center_enemy_y_len_list.append(center_enemy_y)
         
-        hypotenuse_list = []
         most_centered_hypotenuse = 100000
         for index, enemy_coordinates in enumerate(enemy_coordinates_list):
             hypotenuse = sqrt(center_enemy_y_len_list[index]**2 + center_enemy_x_len_list[index]**2)
@@ -130,9 +139,11 @@ def mining(screenshot_sizer, ii):
         x_move = int( (most_centered_to_enemy_x + x_screen_start) * 2/3 )
         y_move = int( (most_centered_to_enemy_y + y_screen_start) * 2/3 )
         
-        time_set = 3
+        # x_move = int( (center_enemy_x_len_list[0] + x_screen_start) * 2/3 )
+        # y_move = int( (center_enemy_y_len_list[0] + y_screen_start) * 2/3 )
         
-        winsound.Beep(frequency, duration)
+        time_set = 2.5
+        
         win32api.SetCursorPos((x_move, y_move))
         win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_move, y_move, 0, 0)
         time.sleep(0.1)
@@ -142,7 +153,13 @@ def mining(screenshot_sizer, ii):
         time.sleep(0.1)
         win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_move, y_move, 0, 0)
         time.sleep(time_set)
-        time.sleep(random.randrange(2))
+        time.sleep(random.randrange(1))
+        return stop_index
+    else:
+        stop_index += 1
+        if stop_index == 15:
+            sys.exit()
+        return stop_index
     
     
     # x_temp_1 = int((x_screen_start+1025)*2/3)
@@ -150,7 +167,7 @@ def mining(screenshot_sizer, ii):
     # x_temp_2 = int((x_screen_start+950)*2/3)
     # y_temp_2 = int((y_screen_start+700)*2/3)
     
-    # time_set = 3
+    # time_set = 2
     
     # for i in range(9):
     #     win32api.SetCursorPos((x_temp_1+10, y_temp_1))
@@ -162,7 +179,7 @@ def mining(screenshot_sizer, ii):
     #     time.sleep(0.1)
     #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_1, y_temp_1, 0, 0)
     #     time.sleep(time_set)
-    #     time.sleep(random.randrange(2))
+    #     time.sleep(random.randrange(1))
         
     #     win32api.SetCursorPos((x_temp_2, y_temp_2))
     #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_2, y_temp_2, 0, 0)
@@ -173,7 +190,7 @@ def mining(screenshot_sizer, ii):
     #     time.sleep(0.1)
     #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_2, y_temp_2, 0, 0)
     #     time.sleep(time_set)
-    #     time.sleep(random.randrange(2))
+    #     time.sleep(random.randrange(1))
         
     #     win32api.SetCursorPos((x_temp_1+10, y_temp_1+120))
     #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_2, y_temp_2, 0, 0)
@@ -184,7 +201,7 @@ def mining(screenshot_sizer, ii):
     #     time.sleep(0.1)
     #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_2, y_temp_2, 0, 0)
     #     time.sleep(time_set)
-    #     time.sleep(random.randrange(2))
+    #     time.sleep(random.randrange(1))
 
 
 
@@ -240,10 +257,15 @@ transforms_1 = A.Compose([
 # Takes screenshot to check size of screen
 screenshot_sizer = ImageGrab.grab()
 
+# Finds window size and where coordinates starts and ends in window
+x_screen_start = screenshot_sizer.size[0]-2100
+y_screen_start = 0
 
-for i in range(1):
+
+for i in range(100):
+    stop_index = 0
     for ii in range(26):
-        mining(screenshot_sizer, ii)
+        stop_index = mining(x_screen_start, y_screen_start, ii, stop_index)
     
     drop_inventory()
 
