@@ -75,10 +75,30 @@ def drop_inventory():
 def banker():
     # Takes screenshot to check size of screen
     screenshot_sizer = ImageGrab.grab()
-
+    
     # Finds window size and where coordinates starts and ends in window
     x_screen_start = screenshot_sizer.size[0]-2100
     y_screen_start = 0
+    
+    # Fixes minimap
+    # -------------------------------------------------------------------------
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1800
+    inv_start_y = 70
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    win32api.SetCursorPos((x_start, y_start))
+    time.sleep(0.1)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_start, y_start, 0, 0)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_start, y_start, 0, 0)
+    time.sleep(.1)
+    win32api.keybd_event(0x26, 0,0,0)
+    time.sleep(0.6)
+    win32api.keybd_event(0x26, 0 ,win32con.KEYEVENTF_KEYUP ,0)
+    # -------------------------------------------------------------------------
+    
     
     # Runs to bank section
     # Coordinates of first inventory slot relative to screen start
@@ -92,12 +112,75 @@ def banker():
     time.sleep(0.1)
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_start, y_start, 0, 0)
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_start, y_start, 0, 0)
-    time.sleep(9)
+    time.sleep(9.5)
+    
+    # -------------------------------------------------------------------------
+    # winsound.Beep(frequency, duration)
+    temp_screenshot = ImageGrab.grab(bbox =(screenshot_sizer.size[0]-2100, 
+                                       0,
+                                       screenshot_sizer.size[0], 
+                                       screenshot_sizer.size[1]
+                                       )
+                                )
+    
+    # temp_screenshot.save('./Images/Screenshots/image-{}.jpg'.format(ii))
+    
+    screenshot_cv2 = np.array(temp_screenshot)
+    # screenshot_cv2 = cv2.cvtColor(screenshot_cv2, cv2.COLOR_BGR2RGB)
+    
+    transformed_image = transforms_1(image=screenshot_cv2)
+    transformed_image = transformed_image["image"]
+    
+    with torch.no_grad():
+        prediction_1 = model_1([(transformed_image/255).to(device)])
+        pred_1 = prediction_1[0]
+    
+    dieCoordinates = pred_1['boxes'][pred_1['scores'] > MIN_SCORE]
+    die_class_indexes = pred_1['labels'][pred_1['scores'] > MIN_SCORE]
+    # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
+    die_scores = pred_1['scores'][pred_1['scores'] > MIN_SCORE]
+    
+    enemy_coordinates_list = dieCoordinates[die_class_indexes == 1].tolist() # SHOULD "== 1].tolist()" FOR ENEMY
+    
+    die_class_indexes = die_class_indexes.tolist()
+    # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
+    die_scores = die_scores.tolist()
+    
+    if len(enemy_coordinates_list) > 0:
+        center_enemy_x_len_list = []
+        center_enemy_y_len_list = []
+        for enemy_coordinates in enemy_coordinates_list:
+            center_enemy_x = int(enemy_coordinates[0]
+                                +(enemy_coordinates[2]-enemy_coordinates[0])/2
+                                )
+            center_enemy_y = int(enemy_coordinates[1]
+                                +(enemy_coordinates[3]-enemy_coordinates[1])/2
+                                )
+            center_enemy_x_len_list.append(center_enemy_x)
+            center_enemy_y_len_list.append(center_enemy_y)
+        
+        most_centered_hypotenuse = 100000
+        for index, enemy_coordinates in enumerate(enemy_coordinates_list):
+            hypotenuse = sqrt(center_enemy_y_len_list[index]**2 + center_enemy_x_len_list[index]**2)
+            if hypotenuse < most_centered_hypotenuse:
+                most_centered_hypotenuse = hypotenuse
+                most_centered_to_enemy_x = center_enemy_x_len_list[index]
+                most_centered_to_enemy_y = center_enemy_y_len_list[index]
+        
+        x_move = int( (most_centered_to_enemy_x + x_screen_start) * 2/3 )
+        y_move = int( (most_centered_to_enemy_y + y_screen_start) * 2/3 )
+    
+    win32api.SetCursorPos((x_move, y_move))
+    time.sleep(0.1)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_move, y_move, 0, 0)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_move, y_move, 0, 0)
+    time.sleep(2)
+    # -------------------------------------------------------------------------
     
     
-    # bank click section
-    inv_start_x = 950
-    inv_start_y = 700
+    # bank deposit all inventory section
+    inv_start_x = 1150
+    inv_start_y = 1080
     
     x_start = int((x_screen_start + inv_start_x)*2/3)
     y_start = int((y_screen_start + inv_start_y)*2/3)
@@ -109,17 +192,66 @@ def banker():
     time.sleep(1)
     
     
-    # bank deposit inventory section
-    inv_start_x = 1800
-    inv_start_y = 940
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    # winsound.Beep(frequency, duration)
+    temp_screenshot = ImageGrab.grab(bbox =(screenshot_sizer.size[0]-2100, 
+                                       0,
+                                       screenshot_sizer.size[0], 
+                                       screenshot_sizer.size[1]
+                                       )
+                                )
     
-    win32api.SetCursorPos((x_start, y_start))
+    # temp_screenshot.save('./Images/Screenshots/image-{}.jpg'.format(ii))
+    
+    screenshot_cv2 = np.array(temp_screenshot)
+    # screenshot_cv2 = cv2.cvtColor(screenshot_cv2, cv2.COLOR_BGR2RGB)
+    
+    transformed_image = transforms_1(image=screenshot_cv2)
+    transformed_image = transformed_image["image"]
+    
+    with torch.no_grad():
+        prediction_1 = model_1([(transformed_image/255).to(device)])
+        pred_1 = prediction_1[0]
+    
+    dieCoordinates = pred_1['boxes'][pred_1['scores'] > MIN_SCORE]
+    die_class_indexes = pred_1['labels'][pred_1['scores'] > MIN_SCORE]
+    # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
+    die_scores = pred_1['scores'][pred_1['scores'] > MIN_SCORE]
+    
+    enemy_coordinates_list = dieCoordinates[die_class_indexes == 2].tolist() # SHOULD "== 1].tolist()" FOR ENEMY
+    
+    die_class_indexes = die_class_indexes.tolist()
+    # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
+    die_scores = die_scores.tolist()
+    
+    if len(enemy_coordinates_list) > 0:
+        center_enemy_x_len_list = []
+        center_enemy_y_len_list = []
+        for enemy_coordinates in enemy_coordinates_list:
+            center_enemy_x = int(enemy_coordinates[0]
+                                +(enemy_coordinates[2]-enemy_coordinates[0])/2
+                                )
+            center_enemy_y = int(enemy_coordinates[1]
+                                +(enemy_coordinates[3]-enemy_coordinates[1])/2
+                                )
+            center_enemy_x_len_list.append(center_enemy_x)
+            center_enemy_y_len_list.append(center_enemy_y)
+        
+        most_centered_hypotenuse = 100000
+        for index, enemy_coordinates in enumerate(enemy_coordinates_list):
+            hypotenuse = sqrt(center_enemy_y_len_list[index]**2 + center_enemy_x_len_list[index]**2)
+            if hypotenuse < most_centered_hypotenuse:
+                most_centered_hypotenuse = hypotenuse
+                most_centered_to_enemy_x = center_enemy_x_len_list[index]
+                most_centered_to_enemy_y = center_enemy_y_len_list[index]
+        
+        x_move = int( (most_centered_to_enemy_x + x_screen_start) * 2/3 )
+        y_move = int( (most_centered_to_enemy_y + y_screen_start) * 2/3 )
+    
+    win32api.SetCursorPos((x_move, y_move))
     time.sleep(0.1)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_start, y_start, 0, 0)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_start, y_start, 0, 0)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_move, y_move, 0, 0)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_move, y_move, 0, 0)
     time.sleep(1)
     
     
@@ -134,7 +266,7 @@ def banker():
     time.sleep(0.1)
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_start, y_start, 0, 0)
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_start, y_start, 0, 0)
-    time.sleep(9)
+    time.sleep(9.5)
 
 
 def mining(x_screen_start, y_screen_start, ii, stop_index):
@@ -164,7 +296,7 @@ def mining(x_screen_start, y_screen_start, ii, stop_index):
     # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
     die_scores = pred_1['scores'][pred_1['scores'] > MIN_SCORE]
     
-    enemy_coordinates_list = dieCoordinates[die_class_indexes > 0].tolist() # SHOULD "== 1].tolist()" FOR ENEMY
+    enemy_coordinates_list = dieCoordinates[die_class_indexes == 3].tolist() # SHOULD "== 1].tolist()" FOR ENEMY
     
     die_class_indexes = die_class_indexes.tolist()
     # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
@@ -206,7 +338,7 @@ def mining(x_screen_start, y_screen_start, ii, stop_index):
         # x_move = int( (center_enemy_x_len_list[0] + x_screen_start) * 2/3 )
         # y_move = int( (center_enemy_y_len_list[0] + y_screen_start) * 2/3 )
         
-        time_set = 1.9
+        time_set = 2.0
         
         win32api.SetCursorPos((x_move, y_move))
         win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_move, y_move, 0, 0)
@@ -221,51 +353,10 @@ def mining(x_screen_start, y_screen_start, ii, stop_index):
         return stop_index
     else:
         stop_index += 1
-        if stop_index == 15:
+        if stop_index == 20:
+            print("Stopping!")
             sys.exit()
         return stop_index
-    
-    
-    # x_temp_1 = int((x_screen_start+1025)*2/3)
-    # y_temp_1 = int((y_screen_start+625)*2/3)
-    # x_temp_2 = int((x_screen_start+950)*2/3)
-    # y_temp_2 = int((y_screen_start+700)*2/3)
-    
-    # time_set = 2
-    
-    # for i in range(9):
-    #     win32api.SetCursorPos((x_temp_1+10, y_temp_1))
-    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_1, y_temp_1, 0, 0)
-    #     time.sleep(0.1)
-    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_1, y_temp_1, 0, 0)
-    #     time.sleep(0.01)
-    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_1, y_temp_1, 0, 0)
-    #     time.sleep(0.1)
-    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_1, y_temp_1, 0, 0)
-    #     time.sleep(time_set)
-    #     time.sleep(random.randrange(1))
-        
-    #     win32api.SetCursorPos((x_temp_2, y_temp_2))
-    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_2, y_temp_2, 0, 0)
-    #     time.sleep(0.1)
-    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_2, y_temp_2, 0, 0)
-    #     time.sleep(0.01)
-    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_2, y_temp_2, 0, 0)
-    #     time.sleep(0.1)
-    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_2, y_temp_2, 0, 0)
-    #     time.sleep(time_set)
-    #     time.sleep(random.randrange(1))
-        
-    #     win32api.SetCursorPos((x_temp_1+10, y_temp_1+120))
-    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_2, y_temp_2, 0, 0)
-    #     time.sleep(0.1)
-    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_2, y_temp_2, 0, 0)
-    #     time.sleep(0.01)
-    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_temp_2, y_temp_2, 0, 0)
-    #     time.sleep(0.1)
-    #     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_temp_2, y_temp_2, 0, 0)
-    #     time.sleep(time_set)
-    #     time.sleep(random.randrange(1))
 
 
 
@@ -328,7 +419,7 @@ y_screen_start = 500
 
 for i in range(100):
     stop_index = 0
-    for ii in range(26):
+    for ii in range(27):
         stop_index = mining(x_screen_start, y_screen_start, ii, stop_index)
     
     banker()
