@@ -23,18 +23,102 @@ from math import sqrt
 from torchvision.utils import save_image
 import sys
 
+import win32gui
+
+def callback(hwnd, extra):
+    hwndMain  = win32gui.FindWindow(None, "Runelite - Blyatypus_IM")
+    rect = win32gui.GetWindowRect(hwndMain)
+    x = rect[0]
+    y = rect[1]
+    w = rect[2] - x
+    h = rect[3] - y
+    
 
 # User parameters
 SAVE_NAME_OD = "./Models/OSRS_Mining-0.model"
 DATASET_PATH = "./Training_Data/" + SAVE_NAME_OD.split("./Models/",1)[1].split("-",1)[0] +"/"
 IMAGE_SIZE              = int(re.findall(r'\d+', SAVE_NAME_OD)[-1] ) # Row and column number 
 MIN_SCORE               = 0.7
+TIME_BETWEEN_MINING     = 6 # Set 2.0 default for one pick iron
 
 
-def click(x,y):
+# def predicter(
+#               ):
+    
+#     # screenshot_x1 = screenshot_sizer.size[0]-2100, 
+#     # screenshot_y1 = 0, 
+#     # screenshot_x2 = screenshot_sizer.size[0], 
+#     # screenshot_y2 = screenshot_sizer.size[1]
+    
+#     screenshot_sizer = ImageGrab.grab()
+    
+#     # winsound.Beep(frequency, duration)
+#     temp_screenshot = ImageGrab.grab(bbox =(screenshot_x1, 
+#                                             screenshot_y1,
+#                                             screenshot_x2, 
+#                                             screenshot_y2
+#                                             )
+#                                      )
+    
+#     # temp_screenshot.save('./Images/Screenshots/image-{}.jpg'.format(ii))
+    
+#     screenshot_cv2 = np.array(temp_screenshot)
+#     # screenshot_cv2 = cv2.cvtColor(screenshot_cv2, cv2.COLOR_BGR2RGB)
+    
+#     transformed_image = transforms_1(image=screenshot_cv2)
+#     transformed_image = transformed_image["image"]
+    
+#     with torch.no_grad():
+#         prediction_1 = model_1([(transformed_image/255).to(device)])
+#         pred_1 = prediction_1[0]
+    
+#     dieCoordinates = pred_1['boxes'][pred_1['scores'] > MIN_SCORE]
+#     die_class_indexes = pred_1['labels'][pred_1['scores'] > MIN_SCORE]
+    
+#     return (dieCoordinates, die_class_indexes)
+    
+
+def most_centered_coordinates(dieCoordinates, die_class_indexes, interested_index=2):
+    
+    enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index].tolist() # SHOULD "== 1].tolist()" FOR ENEMY
+    
+    if len(enemy_coordinates_list) > 0:
+        center_enemy_x_len_list = []
+        center_enemy_y_len_list = []
+        for enemy_coordinates in enemy_coordinates_list:
+            center_enemy_x = int(enemy_coordinates[0]
+                                +(enemy_coordinates[2]-enemy_coordinates[0])/2
+                                )
+            center_enemy_y = int(enemy_coordinates[1]
+                                +(enemy_coordinates[3]-enemy_coordinates[1])/2
+                                )
+            center_enemy_x_len_list.append(center_enemy_x)
+            center_enemy_y_len_list.append(center_enemy_y)
+        
+        most_centered_hypotenuse = 100000
+        for index, enemy_coordinates in enumerate(enemy_coordinates_list):
+            hypotenuse = sqrt(center_enemy_y_len_list[index]**2 + center_enemy_x_len_list[index]**2)
+            if hypotenuse < most_centered_hypotenuse:
+                most_centered_hypotenuse = hypotenuse
+                most_centered_to_enemy_x = center_enemy_x_len_list[index]
+                most_centered_to_enemy_y = center_enemy_y_len_list[index]
+        
+        x_move = int( (most_centered_to_enemy_x + x_screen_start) * 2/3 )
+        y_move = int( (most_centered_to_enemy_y + y_screen_start) * 2/3 )
+    
+    return (x_move, y_move)
+
+
+def cursor(x,y):
     win32api.SetCursorPos((x,y))
+
+
+def left_click(x, y, time_sleep = 0):
+    win32api.SetCursorPos((x,y))
+    time.sleep(0.1)
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,x,y,0,0)
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,x,y,0,0)
+    time.sleep(time_sleep)
 
 
 def drop_inventory():
@@ -55,21 +139,38 @@ def drop_inventory():
     
     for y_index in range(7):
         for x_index in range(4):
-            if x_index == 3 and y_index == 6:
+            
+            if x_index == 2 and y_index == 6:
                 break
+            
+            # ------------ Comment out if not using drop plugin -------------------------
+            # Left clicks for drop
             win32api.SetCursorPos((x_start+40*x_index, y_start+37*y_index))
-            time.sleep(0.1)
-            win32api.mouse_event(win32con.MOUSEEVENTF_RIGHTDOWN, x_start, y_start, 0, 0)
-            win32api.mouse_event(win32con.MOUSEEVENTF_RIGHTUP, x_start, y_start, 0, 0)
-            time.sleep(0.1)
-            if y_index == 6:
-                win32api.SetCursorPos((x_start+40*x_index-10, y_start+37*y_index+20))
-            else:
-                win32api.SetCursorPos((x_start+40*x_index-10, y_start+37*y_index+40))
             time.sleep(0.1)
             win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_start, y_start, 0, 0)
             win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_start, y_start, 0, 0)
             time.sleep(0.1)
+            # ---------------------------------------------------------------------------
+            
+            # # ------------ Comment out if not using drop plugin -------------------------
+            # # Right clicks for drop
+            # win32api.SetCursorPos((x_start+40*x_index, y_start+37*y_index))
+            # time.sleep(0.1)
+            # win32api.mouse_event(win32con.MOUSEEVENTF_RIGHTDOWN, x_start, y_start, 0, 0)
+            # win32api.mouse_event(win32con.MOUSEEVENTF_RIGHTUP, x_start, y_start, 0, 0)
+            # time.sleep(0.1)
+            
+            # # Left clicks drop button
+            # # If item is on last row, adjust height
+            # if y_index == 6:
+            #     win32api.SetCursorPos((x_start+40*x_index-10, y_start+37*y_index+20))
+            # else:
+            #     win32api.SetCursorPos((x_start+40*x_index-10, y_start+37*y_index+40))
+            # time.sleep(0.1)
+            # win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_start, y_start, 0, 0)
+            # win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_start, y_start, 0, 0)
+            # time.sleep(0.1)
+            # # ---------------------------------------------------------------------------
 
 
 def banker():
@@ -89,11 +190,8 @@ def banker():
     x_start = int((x_screen_start + inv_start_x)*2/3)
     y_start = int((y_screen_start + inv_start_y)*2/3)
     
-    win32api.SetCursorPos((x_start, y_start))
-    time.sleep(0.1)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_start, y_start, 0, 0)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_start, y_start, 0, 0)
-    time.sleep(.1)
+    left_click(x_start, x_start, time_sleep = 0.6)
+    
     win32api.keybd_event(0x26, 0,0,0)
     time.sleep(0.6)
     win32api.keybd_event(0x26, 0 ,win32con.KEYEVENTF_KEYUP ,0)
@@ -108,11 +206,7 @@ def banker():
     x_start = int((x_screen_start + inv_start_x)*2/3)
     y_start = int((y_screen_start + inv_start_y)*2/3)
     
-    win32api.SetCursorPos((x_start, y_start))
-    time.sleep(0.1)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_start, y_start, 0, 0)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_start, y_start, 0, 0)
-    time.sleep(9.5)
+    left_click(x_start, x_start, time_sleep = 9.5)
     
     # -------------------------------------------------------------------------
     # winsound.Beep(frequency, duration)
@@ -170,11 +264,7 @@ def banker():
         x_move = int( (most_centered_to_enemy_x + x_screen_start) * 2/3 )
         y_move = int( (most_centered_to_enemy_y + y_screen_start) * 2/3 )
     
-    win32api.SetCursorPos((x_move, y_move))
-    time.sleep(0.1)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_move, y_move, 0, 0)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_move, y_move, 0, 0)
-    time.sleep(2)
+    left_click(x_move, y_move, time_sleep = 2)
     # -------------------------------------------------------------------------
     
     
@@ -185,11 +275,7 @@ def banker():
     x_start = int((x_screen_start + inv_start_x)*2/3)
     y_start = int((y_screen_start + inv_start_y)*2/3)
     
-    win32api.SetCursorPos((x_start, y_start))
-    time.sleep(0.1)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_start, y_start, 0, 0)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_start, y_start, 0, 0)
-    time.sleep(1)
+    left_click(x_start, y_start, time_sleep = 1)
     
     
     
@@ -248,11 +334,7 @@ def banker():
         x_move = int( (most_centered_to_enemy_x + x_screen_start) * 2/3 )
         y_move = int( (most_centered_to_enemy_y + y_screen_start) * 2/3 )
     
-    win32api.SetCursorPos((x_move, y_move))
-    time.sleep(0.1)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_move, y_move, 0, 0)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_move, y_move, 0, 0)
-    time.sleep(1)
+    left_click(x_move, y_move, time_sleep = 1)
     
     
     # Runs back section
@@ -262,11 +344,268 @@ def banker():
     x_start = int((x_screen_start + inv_start_x)*2/3)
     y_start = int((y_screen_start + inv_start_y)*2/3)
     
-    win32api.SetCursorPos((x_start, y_start))
-    time.sleep(0.1)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_start, y_start, 0, 0)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_start, y_start, 0, 0)
-    time.sleep(9.5)
+    
+    left_click(x_start, y_start, time_sleep = 9.5)
+
+
+def banker_varrock():
+    # Takes screenshot to check size of screen
+    screenshot_sizer = ImageGrab.grab()
+    
+    # Finds window size and where coordinates starts and ends in window
+    x_screen_start = screenshot_sizer.size[0]-2100
+    y_screen_start = 0
+    
+    # Fixes minimap
+    # -------------------------------------------------------------------------
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1800
+    inv_start_y = 70
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, time_sleep = 0.1)
+    
+    win32api.keybd_event(0x26, 0,0,0)
+    time.sleep(0.6)
+    win32api.keybd_event(0x26, 0 ,win32con.KEYEVENTF_KEYUP ,0)
+    # -------------------------------------------------------------------------
+    
+    
+    # Runs to bank section
+    # -------------------------------------------------------------------------
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1820+100+40
+    inv_start_y = 60+5
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, 13)
+    
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1820+100
+    inv_start_y = 60+5
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, 13)
+    
+    left_click(x_start, y_start, 13)
+    
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1820+10
+    inv_start_y = 60+5+50
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, 13)
+    
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1820
+    inv_start_y = 60+5+120
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, 14)
+    
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1820+50
+    inv_start_y = 60+5+150
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, 13)
+    # -------------------------------------------------------------------------
+    
+    
+    # Clicks banks
+    # -------------------------------------------------------------------------
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1050
+    inv_start_y = 800
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, 2)
+    # -------------------------------------------------------------------------
+    
+    
+    # bank deposit all inventory section
+    # -------------------------------------------------------------------------
+    inv_start_x = 1150
+    inv_start_y = 1080
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    
+    left_click(x_start, y_start, 1)
+    
+    
+    # Runs back section
+    # -------------------------------------------------------------------------
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1820+180
+    inv_start_y = 60+60
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, 13)
+    
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1820+180
+    inv_start_y = 200
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, 13)
+    
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1820+140
+    inv_start_y = 260
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, 13)
+    
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1820+100
+    inv_start_y = 260
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, 13)
+    
+    left_click(x_start, y_start, 13)
+    
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1820+50
+    inv_start_y = 210
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, 13)
+    # -------------------------------------------------------------------------
+
+
+def trader_drawf_mine():
+    # Takes screenshot to check size of screen
+    screenshot_sizer = ImageGrab.grab()
+    
+    # Finds window size and where coordinates starts and ends in window
+    x_screen_start = screenshot_sizer.size[0]-2100
+    y_screen_start = 0
+    
+    # Fixes minimap
+    # -------------------------------------------------------------------------
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1800
+    inv_start_y = 70
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    
+    left_click(x_start, y_start, time_sleep = 0.1)
+    
+    win32api.keybd_event(0x26, 0,0,0)
+    time.sleep(0.6)
+    win32api.keybd_event(0x26, 0 ,win32con.KEYEVENTF_KEYUP ,0)
+    # -------------------------------------------------------------------------
+    
+    
+    # Runs to trader dwarf section
+    # -------------------------------------------------------------------------
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1800+140
+    inv_start_y = 60
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, 20)
+    # -------------------------------------------------------------------------
+    
+    
+    # Clicks banks
+    # -------------------------------------------------------------------------
+    
+    # -------------------------------------------------------------------------
+    
+    
+    # bank deposit all inventory section
+    # -------------------------------------------------------------------------
+    inv_start_x = 1150
+    inv_start_y = 1080
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    
+    left_click(x_start, y_start, 1)
+    
+    
+    # Runs back section
+    # -------------------------------------------------------------------------
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1820+180
+    inv_start_y = 60+60
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, 13)
+    
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1820+180
+    inv_start_y = 200
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, 13)
+    
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1820+140
+    inv_start_y = 260
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, 13)
+    
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1820+100
+    inv_start_y = 260
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, 13)
+    
+    left_click(x_start, y_start, 13)
+    
+    # Coordinates of first inventory slot relative to screen start
+    inv_start_x = 1820+50
+    inv_start_y = 210
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, 13)
+    # -------------------------------------------------------------------------
 
 
 def mining(x_screen_start, y_screen_start, ii, stop_index):
@@ -293,23 +632,8 @@ def mining(x_screen_start, y_screen_start, ii, stop_index):
     
     dieCoordinates = pred_1['boxes'][pred_1['scores'] > MIN_SCORE]
     die_class_indexes = pred_1['labels'][pred_1['scores'] > MIN_SCORE]
-    # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
-    die_scores = pred_1['scores'][pred_1['scores'] > MIN_SCORE]
     
-    enemy_coordinates_list = dieCoordinates[die_class_indexes == 3].tolist() # SHOULD "== 1].tolist()" FOR ENEMY
-    
-    die_class_indexes = die_class_indexes.tolist()
-    # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
-    die_scores = die_scores.tolist()
-    
-    # predicted_image = draw_bounding_boxes(transformed_image,
-    #     boxes = dieCoordinates,
-    #     # labels = [classes_1[i] for i in die_class_indexes], 
-    #     # labels = [str(round(i,2)) for i in die_scores], # SHOWS SCORE IN LABEL
-    #     width = 2,
-    #     colors = "red"
-    #     )
-    # save_image((predicted_image/255), './Images/Screenshots/image-{}.jpg'.format(ii))
+    enemy_coordinates_list = dieCoordinates[die_class_indexes == 5].tolist() # SHOULD "== 1].tolist()" FOR ENEMY
     
     if len(enemy_coordinates_list) > 0:
         center_enemy_x_len_list = []
@@ -338,8 +662,6 @@ def mining(x_screen_start, y_screen_start, ii, stop_index):
         # x_move = int( (center_enemy_x_len_list[0] + x_screen_start) * 2/3 )
         # y_move = int( (center_enemy_y_len_list[0] + y_screen_start) * 2/3 )
         
-        time_set = 2.0
-        
         win32api.SetCursorPos((x_move, y_move))
         win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_move, y_move, 0, 0)
         time.sleep(0.1)
@@ -348,7 +670,7 @@ def mining(x_screen_start, y_screen_start, ii, stop_index):
         win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_move, y_move, 0, 0)
         time.sleep(0.1)
         win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_move, y_move, 0, 0)
-        time.sleep(time_set)
+        time.sleep(TIME_BETWEEN_MINING)
         # time.sleep(random.randrange(1))
         return stop_index
     else:
@@ -417,12 +739,14 @@ x_screen_start = screenshot_sizer.size[0]-1500
 y_screen_start = 500
 
 
-for i in range(100):
+for i in range(1):
     stop_index = 0
-    for ii in range(27):
+    for ii in range(27+5):
         stop_index = mining(x_screen_start, y_screen_start, ii, stop_index)
     
-    banker()
+    # banker()
+    
+    # banker_varrock()
     
     # drop_inventory()
 
