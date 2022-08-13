@@ -20,8 +20,8 @@ from albumentations.pytorch import ToTensorV2
 
 
 # User parameters
-SAVE_NAME      = "./Models/OSRS_Mining-0.model"
-USE_CHECKPOINT = False
+SAVE_NAME      = "./Models/OSRS_Agility-0.model"
+USE_CHECKPOINT = True
 IMAGE_SIZE     = int(re.findall(r'\d+', SAVE_NAME)[-1] ) # Row and column size 
 DATASET_PATH   = "./Training_Data/" + SAVE_NAME.split("./Models/",1)[1].split("-",1)[0] +"/"
 NUMBER_EPOCH   = 1000
