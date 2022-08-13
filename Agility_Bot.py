@@ -95,17 +95,29 @@ def coord_to_move_to(dieCoordinates, die_class_indexes, interested_index=0):
     
     # checks if needs to reset to start location
     
-    if (len(dieCoordinates[die_class_indexes == 9]) > 0
+    if (len(dieCoordinates[die_class_indexes == 10]) > 0
         and len(dieCoordinates[die_class_indexes == 1]) == 0): # If "Minimap-Start_Location" available
+        enemy_coordinates_list = dieCoordinates[die_class_indexes == 10].tolist()
+        needs_repeat = True
+    elif (len(dieCoordinates[die_class_indexes == 9]) > 0
+        and len(dieCoordinates[die_class_indexes == 1]) == 0): # If "Minimap-Lost_Location" available
         enemy_coordinates_list = dieCoordinates[die_class_indexes == 9].tolist()
         needs_repeat = True
-    elif (len(dieCoordinates[die_class_indexes == 8]) > 0
-        and len(dieCoordinates[die_class_indexes == 1]) == 0): # If "Minimap-Lost_Location" available
-        enemy_coordinates_list = dieCoordinates[die_class_indexes == 8].tolist()
-        needs_repeat = True
     else:
-        enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index].tolist()
-        needs_repeat = False
+        if len(dieCoordinates[die_class_indexes == 8]) > 0: # If Mark of Grace found on ground - CHANGE NUMBER 1
+            if (dieCoordinates[die_class_indexes == 8][0][0] > int(2100*.25)
+                and dieCoordinates[die_class_indexes == 8][0][0] < int(2100*.75)
+                and dieCoordinates[die_class_indexes == 8][0][2] > int(screenshot_sizer.size[1]*.25)
+                and dieCoordinates[die_class_indexes == 8][0][2] < int(screenshot_sizer.size[1]*.75)
+                ): # box within 25%-50% of image
+                enemy_coordinates_list = dieCoordinates[die_class_indexes == 8].tolist()
+                needs_repeat = True
+            else:
+                enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index].tolist()
+                needs_repeat = False
+        else:
+            enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index].tolist()
+            needs_repeat = False
     
     
     center_enemy_x = int(enemy_coordinates_list[0][0]

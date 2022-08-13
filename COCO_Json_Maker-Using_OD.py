@@ -21,7 +21,7 @@ import shutil
 
 
 # User parameters
-SAVE_NAME_OD = "./Models/OSRS_Mining-0.model"
+SAVE_NAME_OD = "./Models/OSRS_Agility-0.model"
 DATASET_PATH = "./Training_Data/" + SAVE_NAME_OD.split("./Models/",1)[1].split("-",1)[0] +"/"
 
 IMAGE_SIZE              = int(re.findall(r'\d+', SAVE_NAME_OD)[-1] ) # Row and column number 
@@ -121,7 +121,7 @@ die_segmentations = []
 die_iscrowd = []
 
 # From object detection "To_Predict"
-color_list =['green', 'red', 'magenta', 'blue', 'orange', 'cyan', 'lime', 'turquoise', 'yellow']
+color_list =['green', 'red', 'magenta', 'blue', 'orange', 'cyan', 'lime', 'turquoise', 'yellow', 'white']
 pred_dict = {}
 ii = 0
 
