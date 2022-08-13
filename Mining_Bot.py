@@ -39,7 +39,7 @@ SAVE_NAME_OD = "./Models/OSRS_Mining-0.model"
 DATASET_PATH = "./Training_Data/" + SAVE_NAME_OD.split("./Models/",1)[1].split("-",1)[0] +"/"
 IMAGE_SIZE              = int(re.findall(r'\d+', SAVE_NAME_OD)[-1] ) # Row and column number 
 MIN_SCORE               = 0.7
-TIME_BETWEEN_MINING     = 6 # Set 2.0 default for one pick iron
+TIME_BETWEEN_MINING     = 4 # Set 2.0 default for one pick iron
 
 
 # def predicter(
@@ -140,7 +140,7 @@ def drop_inventory():
     for y_index in range(7):
         for x_index in range(4):
             
-            if x_index == 2 and y_index == 6:
+            if x_index == 1 and y_index == 5:
                 break
             
             # ------------ Comment out if not using drop plugin -------------------------
@@ -190,7 +190,7 @@ def banker():
     x_start = int((x_screen_start + inv_start_x)*2/3)
     y_start = int((y_screen_start + inv_start_y)*2/3)
     
-    left_click(x_start, x_start, time_sleep = 0.6)
+    left_click(x_start, y_start, time_sleep = 0.6)
     
     win32api.keybd_event(0x26, 0,0,0)
     time.sleep(0.6)
@@ -206,7 +206,7 @@ def banker():
     x_start = int((x_screen_start + inv_start_x)*2/3)
     y_start = int((y_screen_start + inv_start_y)*2/3)
     
-    left_click(x_start, x_start, time_sleep = 9.5)
+    left_click(x_start, y_start, time_sleep = 9.5)
     
     # -------------------------------------------------------------------------
     # winsound.Beep(frequency, duration)
@@ -234,7 +234,7 @@ def banker():
     # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
     die_scores = pred_1['scores'][pred_1['scores'] > MIN_SCORE]
     
-    enemy_coordinates_list = dieCoordinates[die_class_indexes == 1].tolist() # SHOULD "== 1].tolist()" FOR ENEMY
+    enemy_coordinates_list = dieCoordinates[die_class_indexes == 2].tolist() 
     
     die_class_indexes = die_class_indexes.tolist()
     # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
@@ -278,7 +278,8 @@ def banker():
     left_click(x_start, y_start, time_sleep = 1)
     
     
-    
+    # Grabs Pickaxe Section
+    # -------------------------------------------------------------------------
     # winsound.Beep(frequency, duration)
     temp_screenshot = ImageGrab.grab(bbox =(screenshot_sizer.size[0]-2100, 
                                        0,
@@ -304,11 +305,7 @@ def banker():
     # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
     die_scores = pred_1['scores'][pred_1['scores'] > MIN_SCORE]
     
-    enemy_coordinates_list = dieCoordinates[die_class_indexes == 2].tolist() # SHOULD "== 1].tolist()" FOR ENEMY
-    
-    die_class_indexes = die_class_indexes.tolist()
-    # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
-    die_scores = die_scores.tolist()
+    enemy_coordinates_list = dieCoordinates[die_class_indexes == 7].tolist() 
     
     if len(enemy_coordinates_list) > 0:
         center_enemy_x_len_list = []
@@ -335,9 +332,11 @@ def banker():
         y_move = int( (most_centered_to_enemy_y + y_screen_start) * 2/3 )
     
     left_click(x_move, y_move, time_sleep = 1)
+    # -------------------------------------------------------------------------
     
     
     # Runs back section
+    # -------------------------------------------------------------------------
     inv_start_x = 2020-55
     inv_start_y = 160-10
     
@@ -346,6 +345,7 @@ def banker():
     
     
     left_click(x_start, y_start, time_sleep = 9.5)
+    # -------------------------------------------------------------------------
 
 
 def banker_varrock():
@@ -633,7 +633,7 @@ def mining(x_screen_start, y_screen_start, ii, stop_index):
     dieCoordinates = pred_1['boxes'][pred_1['scores'] > MIN_SCORE]
     die_class_indexes = pred_1['labels'][pred_1['scores'] > MIN_SCORE]
     
-    enemy_coordinates_list = dieCoordinates[die_class_indexes == 5].tolist() # SHOULD "== 1].tolist()" FOR ENEMY
+    enemy_coordinates_list = dieCoordinates[die_class_indexes == 6].tolist()
     
     if len(enemy_coordinates_list) > 0:
         center_enemy_x_len_list = []
@@ -739,12 +739,12 @@ x_screen_start = screenshot_sizer.size[0]-1500
 y_screen_start = 500
 
 
-for i in range(1):
+for i in range(1000):
     stop_index = 0
-    for ii in range(27+5):
+    for ii in range(27):
         stop_index = mining(x_screen_start, y_screen_start, ii, stop_index)
     
-    # banker()
+    banker()
     
     # banker_varrock()
     
