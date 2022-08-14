@@ -106,10 +106,10 @@ def coord_to_move_to(dieCoordinates, die_class_indexes, interested_index=0):
         needs_repeat = True
     else:
         if len(dieCoordinates[die_class_indexes == 8]) > 0: # If Mark of Grace found on ground - CHANGE NUMBER 1
-            if (dieCoordinates[die_class_indexes == 8][0][0] > int(2100*.15)
-                and dieCoordinates[die_class_indexes == 8][0][2] < int(2100*.85)
-                and dieCoordinates[die_class_indexes == 8][0][1] > int(screenshot_sizer.size[1]*.15)
-                and dieCoordinates[die_class_indexes == 8][0][3] < int(screenshot_sizer.size[1]*.85)
+            if (dieCoordinates[die_class_indexes == 8][0][0] > int(2100*.25)
+                and dieCoordinates[die_class_indexes == 8][0][2] < int(2100*.75)
+                and dieCoordinates[die_class_indexes == 8][0][1] > int(screenshot_sizer.size[1]*.20)
+                and dieCoordinates[die_class_indexes == 8][0][3] < int(screenshot_sizer.size[1]*.80)
                 ): # box within 25%-50% of image
                 enemy_coordinates_list = dieCoordinates[die_class_indexes == 8].tolist()
                 needs_repeat = True
