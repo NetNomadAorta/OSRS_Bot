@@ -43,6 +43,7 @@ def left_click(x, y, time_sleep = 0):
     time.sleep(0.1)
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,x,y,0,0)
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,x,y,0,0)
+    # winsound.Beep(frequency, duration)
     time.sleep(time_sleep)
 
 
@@ -105,10 +106,10 @@ def coord_to_move_to(dieCoordinates, die_class_indexes, interested_index=0):
         needs_repeat = True
     else:
         if len(dieCoordinates[die_class_indexes == 8]) > 0: # If Mark of Grace found on ground - CHANGE NUMBER 1
-            if (dieCoordinates[die_class_indexes == 8][0][0] > int(2100*.25)
-                and dieCoordinates[die_class_indexes == 8][0][0] < int(2100*.75)
-                and dieCoordinates[die_class_indexes == 8][0][2] > int(screenshot_sizer.size[1]*.25)
-                and dieCoordinates[die_class_indexes == 8][0][2] < int(screenshot_sizer.size[1]*.75)
+            if (dieCoordinates[die_class_indexes == 8][0][0] > int(2100*.15)
+                and dieCoordinates[die_class_indexes == 8][0][2] < int(2100*.85)
+                and dieCoordinates[die_class_indexes == 8][0][1] > int(screenshot_sizer.size[1]*.15)
+                and dieCoordinates[die_class_indexes == 8][0][3] < int(screenshot_sizer.size[1]*.85)
                 ): # box within 25%-50% of image
                 enemy_coordinates_list = dieCoordinates[die_class_indexes == 8].tolist()
                 needs_repeat = True
@@ -150,7 +151,7 @@ def agility_trainer():
         x_move, y_move, needs_repeat = coord_to_move_to(dieCoordinates, 
                                                         die_class_indexes, 
                                                         interested_index=1)
-        left_click(x_move, y_move, time_sleep = 10)
+        left_click(x_move, y_move, time_sleep = 7)
         if needs_repeat:
             step_index += 1
         if step_index > 5:
@@ -168,7 +169,7 @@ def agility_trainer():
         x_move, y_move, needs_repeat = coord_to_move_to(dieCoordinates, 
                                                         die_class_indexes, 
                                                         interested_index=2)
-        left_click(x_move, y_move, time_sleep = 10)
+        left_click(x_move, y_move, time_sleep = 9)
         if needs_repeat:
             step_index += 1
         if step_index > 5:
@@ -204,7 +205,7 @@ def agility_trainer():
         x_move, y_move, needs_repeat = coord_to_move_to(dieCoordinates, 
                                                         die_class_indexes, 
                                                         interested_index=4)
-        left_click(x_move, y_move, time_sleep = 5)
+        left_click(x_move, y_move, time_sleep = 7)
         if needs_repeat:
             step_index += 1
         if step_index > 5:
@@ -263,7 +264,7 @@ def agility_trainer():
             step_index += 1
         if step_index > 5:
             break
-    if step_index > 5:
+    if step_index > 6:
         return
     needs_repeat = True
     # -------------------------------------------------------------------------
