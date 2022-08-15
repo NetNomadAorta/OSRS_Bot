@@ -1,29 +1,9 @@
-import os
-import torch
-from torchvision import models
 import re
-import cv2
-import albumentations as A  # our data augmentation library
 # remove arnings (optional)
 import warnings
 warnings.filterwarnings("ignore")
 import time
-from pycocotools.coco import COCO
-# Now, we will define our transforms
-from albumentations.pytorch import ToTensorV2
-from torchvision.utils import draw_bounding_boxes
-import shutil
-from PIL import ImageGrab
-import winsound
-import random
 import win32api, win32con
-import numpy as np
-import time
-from math import sqrt
-from torchvision.utils import save_image
-import sys
-
-import win32gui
     
 
 # User parameters
@@ -61,17 +41,17 @@ def smelter():
     left_click(2800, 460, time_sleep=1.5)
     
     # Clicks Iron
-    left_click(2185, 832, time_sleep=120)
+    left_click(2185, 832, time_sleep=85)
 
 
 def banker():
     fix_minimap()
     
     # Runs to bank
-    left_click(3248, 131, time_sleep=5)
+    left_click(3248, 131, time_sleep=6)
     
     # Clicks bank
-    left_click(2715, 540, time_sleep=2)
+    left_click(2715, 540, time_sleep=1.5)
     
     # Deposits all
     left_click(2782, 718, time_sleep=1)
@@ -80,7 +60,7 @@ def banker():
     left_click(2714, 373, time_sleep=1)
     
     # Runs to smelter
-    left_click(3338, 90, time_sleep=5)
+    left_click(3338, 90, time_sleep=6)
 
 
 

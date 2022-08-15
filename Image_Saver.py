@@ -15,7 +15,7 @@ screenshot_sizer = ImageGrab.grab()
 
 winsound.Beep(frequency, duration)
 
-for i in range(30):
+for i in range(200):
     screenshot = ImageGrab.grab(bbox =(screenshot_sizer.size[0]-2100, 
                                        0,
                                        screenshot_sizer.size[0], 
@@ -25,7 +25,7 @@ for i in range(30):
     
     screenshot.save('./Images/Screenshots/image-{}.jpg'.format(i))
     
-    time.sleep(2)
+    time.sleep(3)
     winsound.Beep(frequency, 40)
     
 winsound.Beep(frequency-100, duration)

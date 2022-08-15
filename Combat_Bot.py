@@ -27,7 +27,7 @@ import win32gui
     
 
 # User parameters
-SAVE_NAME_OD = "./Models/OSRS_Agility-0.model"
+SAVE_NAME_OD = "./Models/OSRS_Combat-0.model"
 DATASET_PATH = "./Training_Data/" + SAVE_NAME_OD.split("./Models/",1)[1].split("-",1)[0] +"/"
 IMAGE_SIZE              = int(re.findall(r'\d+', SAVE_NAME_OD)[-1] ) # Row and column number 
 MIN_SCORE               = 0.7
@@ -95,42 +95,25 @@ def coord_to_move_to(dieCoordinates, die_class_indexes, interested_index=0):
     
     # checks if needs to reset to start location
     
-    if (len(dieCoordinates[die_class_indexes == 11]) > 0
-        and len(dieCoordinates[die_class_indexes == interested_index]) == 0): # If "Minimap-Start_Location" available
-        enemy_coordinates_list = dieCoordinates[die_class_indexes == 10].tolist()
-        needs_repeat = True
-    elif (len(dieCoordinates[die_class_indexes == 10]) > 0
-        and len(dieCoordinates[die_class_indexes == interested_index]) == 0): # If "Minimap-Lost_Location" available
-        enemy_coordinates_list = dieCoordinates[die_class_indexes == 9].tolist()
-        needs_repeat = True
+    if (len(dieCoordinates[die_class_indexes == 3]) > 0
+        and len(dieCoordinates[die_class_indexes == 1]) == 0): # If "Dead" available and not "Alive"
+        enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index].tolist()
+        needs_repeat = False
+    elif (len(dieCoordinates[die_class_indexes == 3]) == 0
+          and len(dieCoordinates[die_class_indexes == 1]) == 0): # If "Dead" and "Alive" not available
+        enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index].tolist()
+        needs_repeat = False
     else:
-        if len(dieCoordinates[die_class_indexes == 9]) > 0: # If Mark of Grace found on ground - CHANGE NUMBER 1
-            if (dieCoordinates[die_class_indexes == 9][0][0] > int(2100*.25)
-                and dieCoordinates[die_class_indexes == 9][0][2] < int(2100*.75)
-                and dieCoordinates[die_class_indexes == 9][0][1] > int(screenshot_sizer.size[1]*.20)
-                and dieCoordinates[die_class_indexes == 9][0][3] < int(screenshot_sizer.size[1]*.80)
-                ): # box within 25%-50% of image
-                enemy_coordinates_list = dieCoordinates[die_class_indexes == 8].tolist()
-                needs_repeat = True
-            else:
-                enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index].tolist()
-                needs_repeat = False
-        else:
-            enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index].tolist()
-            needs_repeat = False
+        enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index].tolist()
+        needs_repeat = True
     
     
     center_enemy_x = int(enemy_coordinates_list[0][0]
                         +(enemy_coordinates_list[0][2]-enemy_coordinates_list[0][0])/2
                         )
-    if interested_index == 1:
-        center_enemy_y = int(enemy_coordinates_list[0][1]
-                            +(enemy_coordinates_list[0][3]-enemy_coordinates_list[0][1])/5
-                            )
-    else:
-        center_enemy_y = int(enemy_coordinates_list[0][1]
-                            +(enemy_coordinates_list[0][3]-enemy_coordinates_list[0][1])/2
-                            )
+    center_enemy_y = int(enemy_coordinates_list[0][1]
+                        +(enemy_coordinates_list[0][3]-enemy_coordinates_list[0][1])/2
+                        )
         
     x_move = int( (center_enemy_x + x_screen_start) * 2/3 )
     y_move = int( (center_enemy_y + y_screen_start) * 2/3 )
@@ -138,67 +121,19 @@ def coord_to_move_to(dieCoordinates, die_class_indexes, interested_index=0):
     return (x_move, y_move, needs_repeat)
 
 
-def agility_trainer_subsection(interested_index=7, time_sleep = 5):
+def combat_bot():
+    # Sets a part for future
     needs_repeat = True
-    step_index = 0
+    
+    # Checks to see if not attacking to attack new entity
+    # -------------------------------------------------------------------------
     while needs_repeat:
         dieCoordinates, die_class_indexes = predicter()
         x_move, y_move, needs_repeat = coord_to_move_to(dieCoordinates, 
                                                         die_class_indexes, 
-                                                        interested_index=interested_index)
-        left_click(x_move, y_move, time_sleep = time_sleep)
-        if needs_repeat:
-            step_index += 1
-        if step_index > 5:
-            break
-    if step_index > 7:
-        return
-
-
-def agility_trainer():
-    # Fixes minimap
-    # -------------------------------------------------------------------------
-    fix_minimap()
-    # -------------------------------------------------------------------------
-    
-    # Starts location 1
-    # -------------------------------------------------------------------------
-    agility_trainer_subsection(interested_index=1, time_sleep = 10)
-    # -------------------------------------------------------------------------
-    
-    # Starts location 2
-    # -------------------------------------------------------------------------
-    agility_trainer_subsection(interested_index=2, time_sleep = 10)
-    # -------------------------------------------------------------------------
-    
-    # Starts location 3
-    # -------------------------------------------------------------------------
-    agility_trainer_subsection(interested_index=3, time_sleep = 10)
-    # -------------------------------------------------------------------------
-    
-    # Starts location 4
-    # -------------------------------------------------------------------------
-    agility_trainer_subsection(interested_index=4, time_sleep = 7)
-    # -------------------------------------------------------------------------
-    
-    # Starts location 5
-    # -------------------------------------------------------------------------
-    agility_trainer_subsection(interested_index=5, time_sleep = 5)
-    # -------------------------------------------------------------------------
-    
-    # Starts location 6
-    # -------------------------------------------------------------------------
-    agility_trainer_subsection(interested_index=6, time_sleep = 5)
-    # -------------------------------------------------------------------------
-    
-    # Starts location 7
-    # -------------------------------------------------------------------------
-    agility_trainer_subsection(interested_index=7, time_sleep = 10)
-    # -------------------------------------------------------------------------
-    
-    # Starts location 8
-    # -------------------------------------------------------------------------
-    agility_trainer_subsection(interested_index=8, time_sleep = 10)
+                                                        interested_index=2)
+        if not needs_repeat:
+            left_click(x_move, y_move, time_sleep = 4)
     # -------------------------------------------------------------------------
 
 
@@ -260,8 +195,8 @@ x_screen_start = screenshot_sizer.size[0]-2100
 y_screen_start = 0
 
 
-for i in range(1000):
-    agility_trainer()
+for i in range(10000):
+    combat_bot()
 
 
 

@@ -121,7 +121,7 @@ die_segmentations = []
 die_iscrowd = []
 
 # From object detection "To_Predict"
-color_list =['green', 'red', 'magenta', 'blue', 'orange', 'cyan', 'lime', 'turquoise', 'yellow', 'white']
+color_list =['green', 'red', 'magenta', 'blue', 'orange', 'cyan', 'lime', 'turquoise', 'yellow', 'white', 'white', 'teal']
 pred_dict = {}
 ii = 0
 
