@@ -101,16 +101,19 @@ def coord_to_move_to(dieCoordinates, die_class_indexes, interested_index=0):
         needs_repeat = True
     elif (len(dieCoordinates[die_class_indexes == 10]) > 0
         and len(dieCoordinates[die_class_indexes == interested_index]) == 0): # If "Minimap-Lost_Location" available
-        enemy_coordinates_list = dieCoordinates[die_class_indexes == 9].tolist()
+        enemy_coordinates_list = dieCoordinates[die_class_indexes == 10].tolist()
+        for index, enemy_coordinates in enumerate(enemy_coordinates_list):
+            enemy_coordinates_list[index][0] = enemy_coordinates_list[index][0]+20
+            enemy_coordinates_list[index][3] = enemy_coordinates_list[index][3]+20
         needs_repeat = True
     else:
         if len(dieCoordinates[die_class_indexes == 9]) > 0: # If Mark of Grace found on ground - CHANGE NUMBER 1
-            if (dieCoordinates[die_class_indexes == 9][0][0] > int(2100*.25)
-                and dieCoordinates[die_class_indexes == 9][0][2] < int(2100*.75)
-                and dieCoordinates[die_class_indexes == 9][0][1] > int(screenshot_sizer.size[1]*.20)
-                and dieCoordinates[die_class_indexes == 9][0][3] < int(screenshot_sizer.size[1]*.80)
+            if (dieCoordinates[die_class_indexes == 9][0][0] > int(2100*.30)
+                and dieCoordinates[die_class_indexes == 9][0][2] < int(2100*.70)
+                and dieCoordinates[die_class_indexes == 9][0][1] > int(screenshot_sizer.size[1]*.30)
+                and dieCoordinates[die_class_indexes == 9][0][3] < int(screenshot_sizer.size[1]*.70)
                 ): # box within 25%-50% of image
-                enemy_coordinates_list = dieCoordinates[die_class_indexes == 8].tolist()
+                enemy_coordinates_list = dieCoordinates[die_class_indexes == 9].tolist()
                 needs_repeat = True
             else:
                 enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index].tolist()
@@ -149,57 +152,37 @@ def agility_trainer_subsection(interested_index=7, time_sleep = 5):
         left_click(x_move, y_move, time_sleep = time_sleep)
         if needs_repeat:
             step_index += 1
-        if step_index > 5:
+        if step_index > 2:
             break
-    if step_index > 7:
-        return
 
 
 def agility_trainer():
     # Fixes minimap
-    # -------------------------------------------------------------------------
     fix_minimap()
-    # -------------------------------------------------------------------------
     
     # Starts location 1
-    # -------------------------------------------------------------------------
     agility_trainer_subsection(interested_index=1, time_sleep = 10)
-    # -------------------------------------------------------------------------
     
     # Starts location 2
-    # -------------------------------------------------------------------------
-    agility_trainer_subsection(interested_index=2, time_sleep = 10)
-    # -------------------------------------------------------------------------
+    agility_trainer_subsection(interested_index=2, time_sleep = 7)
     
     # Starts location 3
-    # -------------------------------------------------------------------------
-    agility_trainer_subsection(interested_index=3, time_sleep = 10)
-    # -------------------------------------------------------------------------
+    agility_trainer_subsection(interested_index=3, time_sleep = 6)
     
     # Starts location 4
-    # -------------------------------------------------------------------------
-    agility_trainer_subsection(interested_index=4, time_sleep = 7)
-    # -------------------------------------------------------------------------
+    agility_trainer_subsection(interested_index=4, time_sleep = 6)
     
     # Starts location 5
-    # -------------------------------------------------------------------------
-    agility_trainer_subsection(interested_index=5, time_sleep = 5)
-    # -------------------------------------------------------------------------
+    agility_trainer_subsection(interested_index=5, time_sleep = 6)
     
     # Starts location 6
-    # -------------------------------------------------------------------------
-    agility_trainer_subsection(interested_index=6, time_sleep = 5)
-    # -------------------------------------------------------------------------
+    agility_trainer_subsection(interested_index=6, time_sleep = 7)
     
     # Starts location 7
-    # -------------------------------------------------------------------------
-    agility_trainer_subsection(interested_index=7, time_sleep = 10)
-    # -------------------------------------------------------------------------
+    agility_trainer_subsection(interested_index=7, time_sleep = 7)
     
     # Starts location 8
-    # -------------------------------------------------------------------------
-    agility_trainer_subsection(interested_index=8, time_sleep = 10)
-    # -------------------------------------------------------------------------
+    agility_trainer_subsection(interested_index=8, time_sleep = 7)
 
 
 
