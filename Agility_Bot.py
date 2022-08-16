@@ -93,12 +93,16 @@ def predicter(
 
 def coord_to_move_to(dieCoordinates, die_class_indexes, interested_index=0):
     
-    # checks if needs to reset to start location
+    interested_index_found = False
+    skip_to_end = False
     
+    # checks if needs to reset to start location
     if (len(dieCoordinates[die_class_indexes == 11]) > 0
         and len(dieCoordinates[die_class_indexes == interested_index]) == 0): # If "Minimap-Start_Location" available
-        enemy_coordinates_list = dieCoordinates[die_class_indexes == 10].tolist()
+        enemy_coordinates_list = dieCoordinates[die_class_indexes == 11].tolist()
         needs_repeat = True
+        if len(dieCoordinates[die_class_indexes == 1]) > 0 and interested_index != 1: # If startr location 1 is shown
+            skip_to_end = True
     elif (len(dieCoordinates[die_class_indexes == 10]) > 0
         and len(dieCoordinates[die_class_indexes == interested_index]) == 0): # If "Minimap-Lost_Location" available
         enemy_coordinates_list = dieCoordinates[die_class_indexes == 10].tolist()
@@ -116,12 +120,28 @@ def coord_to_move_to(dieCoordinates, die_class_indexes, interested_index=0):
                 enemy_coordinates_list = dieCoordinates[die_class_indexes == 9].tolist()
                 needs_repeat = True
             else:
-                enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index].tolist()
-                needs_repeat = False
+                if len(dieCoordinates[die_class_indexes == interested_index]) > 0:
+                    interested_index_found = True
+                    
+                    
         else:
-            enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index].tolist()
-            needs_repeat = False
+            if len(dieCoordinates[die_class_indexes == interested_index]) > 0:
+                interested_index_found = True
     
+    
+    if interested_index_found:
+        # Checks to see if affect of 1st location click still leaves avatar floating
+        if interested_index == 3:
+            if (dieCoordinates[die_class_indexes == interested_index][0][1] > int(screenshot_sizer.size[1]*.40)
+                and dieCoordinates[die_class_indexes == interested_index][0][3] < int(screenshot_sizer.size[1]*.60) ):
+                needs_repeat = False
+                enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index].tolist()
+            else:
+                needs_repeat = True
+                enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index-1].tolist()
+        else:
+            needs_repeat = False
+            enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index].tolist()
     
     center_enemy_x = int(enemy_coordinates_list[0][0]
                         +(enemy_coordinates_list[0][2]-enemy_coordinates_list[0][0])/2
@@ -134,24 +154,27 @@ def coord_to_move_to(dieCoordinates, die_class_indexes, interested_index=0):
         center_enemy_y = int(enemy_coordinates_list[0][1]
                             +(enemy_coordinates_list[0][3]-enemy_coordinates_list[0][1])/2
                             )
-        
+
     x_move = int( (center_enemy_x + x_screen_start) * 2/3 )
     y_move = int( (center_enemy_y + y_screen_start) * 2/3 )
     
-    return (x_move, y_move, needs_repeat)
+    return (x_move, y_move, needs_repeat, skip_to_end)
 
 
 def agility_trainer_subsection(interested_index=7, time_sleep = 5):
     needs_repeat = True
-    step_index = 0
+    step_index = 1
     while needs_repeat:
         dieCoordinates, die_class_indexes = predicter()
-        x_move, y_move, needs_repeat = coord_to_move_to(dieCoordinates, 
+        x_move, y_move, needs_repeat, skip_to_end = coord_to_move_to(dieCoordinates, 
                                                         die_class_indexes, 
                                                         interested_index=interested_index)
+        if skip_to_end:
+            return
         left_click(x_move, y_move, time_sleep = time_sleep)
         if needs_repeat:
             step_index += 1
+        
         if step_index > 2:
             break
 
@@ -164,25 +187,25 @@ def agility_trainer():
     agility_trainer_subsection(interested_index=1, time_sleep = 10)
     
     # Starts location 2
-    agility_trainer_subsection(interested_index=2, time_sleep = 7)
+    agility_trainer_subsection(interested_index=2, time_sleep = 5)
     
     # Starts location 3
-    agility_trainer_subsection(interested_index=3, time_sleep = 6)
+    agility_trainer_subsection(interested_index=3, time_sleep = 5)
     
     # Starts location 4
     agility_trainer_subsection(interested_index=4, time_sleep = 6)
     
     # Starts location 5
-    agility_trainer_subsection(interested_index=5, time_sleep = 6)
+    agility_trainer_subsection(interested_index=5, time_sleep = 5)
     
     # Starts location 6
     agility_trainer_subsection(interested_index=6, time_sleep = 7)
     
     # Starts location 7
-    agility_trainer_subsection(interested_index=7, time_sleep = 7)
+    agility_trainer_subsection(interested_index=7, time_sleep = 8)
     
     # Starts location 8
-    agility_trainer_subsection(interested_index=8, time_sleep = 7)
+    agility_trainer_subsection(interested_index=8, time_sleep = 5)
 
 
 
@@ -243,7 +266,7 @@ x_screen_start = screenshot_sizer.size[0]-2100
 y_screen_start = 0
 
 
-for i in range(1000):
+while True:
     agility_trainer()
 
 
