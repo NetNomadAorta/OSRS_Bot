@@ -20,7 +20,7 @@ from albumentations.pytorch import ToTensorV2
 
 
 # User parameters
-SAVE_NAME      = "./Models/OSRS_Agility-0.model"
+SAVE_NAME      = "./Models/OSRS_Mining-0.model"
 USE_CHECKPOINT = True
 IMAGE_SIZE     = int(re.findall(r'\d+', SAVE_NAME)[-1] ) # Row and column size 
 DATASET_PATH   = "./Training_Data/" + SAVE_NAME.split("./Models/",1)[1].split("-",1)[0] +"/"
@@ -168,8 +168,8 @@ train_dataset = Object_Detection(root=dataset_path, transforms=get_transforms(Tr
 
 
 # lets load the faster rcnn model
-model = models.detection.fasterrcnn_resnet50_fpn_v2(pretrained=True, box_detections_per_img=500)
-# model = models.detection.fasterrcnn_resnet50_fpn_v2(pretrained=True) # HOW TO MAKE THIS ONE EXIST
+model = models.detection.fasterrcnn_resnet50_fpn(pretrained=True, box_detections_per_img=500)
+# model = models.detection.fasterrcnn_resnet50_fpn(pretrained=True) # HOW TO MAKE THIS ONE EXIST
 in_features = model.roi_heads.box_predictor.cls_score.in_features # we need to change the head
 model.roi_heads.box_predictor = models.detection.faster_rcnn.FastRCNNPredictor(in_features, n_classes)
 
@@ -266,14 +266,8 @@ prev_saved_weighted_loss = 100
 
 for epoch in range(num_epochs):
     all_losses, obj_loss = train_one_epoch(model, optimizer, train_loader, device, epoch)
-    if obj_loss/all_losses < 0.01:
-        weighted_obj_loss = 9*obj_loss
-    elif obj_loss/all_losses < 0.03:
-        weighted_obj_loss = 4*obj_loss
-    elif obj_loss/all_losses < 0.05:
-        weighted_obj_loss = 2*obj_loss
-    else:
-        weighted_obj_loss = obj_loss
+    
+    weighted_obj_loss = max(-76.23*(obj_loss/all_losses)+9.0656, 2) * obj_loss
     weighted_loss = all_losses + weighted_obj_loss
     
     # Saves model - version 2 - can comment out if wanted

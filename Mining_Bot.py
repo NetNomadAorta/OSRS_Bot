@@ -119,6 +119,18 @@ def left_click(x, y, time_sleep = 0):
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,x,y,0,0)
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,x,y,0,0)
     time.sleep(time_sleep)
+    time.sleep(random.randrange(1))
+
+
+def rand_spot(x_min, x_max, y_min, y_max):
+    x_min = int( x_min + 0.25*(x_max-x_min) )
+    x_max = int( x_max - 0.25*(x_max-x_min) )
+    y_min = int( y_min + 0.25*(y_max-y_min) )
+    y_max = int( y_max - 0.25*(y_max-y_min) )
+    
+    x_click = random.randrange(x_min, x_max)
+    y_click = random.randrange(y_min, y_max)
+    return x_click, y_click
 
 
 def drop_inventory():
@@ -199,15 +211,6 @@ def banker():
     
     
     # Runs to bank section
-    # Coordinates of first inventory slot relative to screen start
-    inv_start_x = 1820+50
-    inv_start_y = 175+10
-    
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
-    
-    left_click(x_start, y_start, time_sleep = 9.5)
-    
     # -------------------------------------------------------------------------
     # winsound.Beep(frequency, duration)
     temp_screenshot = ImageGrab.grab(bbox =(screenshot_sizer.size[0]-2100, 
@@ -234,7 +237,7 @@ def banker():
     # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
     die_scores = pred_1['scores'][pred_1['scores'] > MIN_SCORE]
     
-    enemy_coordinates_list = dieCoordinates[die_class_indexes == 2].tolist() 
+    enemy_coordinates_list = dieCoordinates[die_class_indexes == 4].tolist() 
     
     die_class_indexes = die_class_indexes.tolist()
     # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
@@ -260,25 +263,22 @@ def banker():
                 most_centered_hypotenuse = hypotenuse
                 most_centered_to_enemy_x = center_enemy_x_len_list[index]
                 most_centered_to_enemy_y = center_enemy_y_len_list[index]
+                index_to_use = index
         
-        x_move = int( (most_centered_to_enemy_x + x_screen_start) * 2/3 )
-        y_move = int( (most_centered_to_enemy_y + y_screen_start) * 2/3 )
+        
+        x_click, y_click = rand_spot(enemy_coordinates_list[index_to_use][0], 
+                                     enemy_coordinates_list[index_to_use][2], 
+                                     enemy_coordinates_list[index_to_use][1], 
+                                     enemy_coordinates_list[index_to_use][3])
+        
+        x_move = int( (x_click + x_screen_start) * 2/3 )
+        y_move = int( (y_click + y_screen_start) * 2/3 )
     
     left_click(x_move, y_move, time_sleep = 2)
     # -------------------------------------------------------------------------
     
     
-    # bank deposit all inventory section
-    inv_start_x = 1150
-    inv_start_y = 1080
-    
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
-    
-    left_click(x_start, y_start, time_sleep = 1)
-    
-    
-    # Grabs Pickaxe Section
+    # Clicks Bank
     # -------------------------------------------------------------------------
     # winsound.Beep(frequency, duration)
     temp_screenshot = ImageGrab.grab(bbox =(screenshot_sizer.size[0]-2100, 
@@ -305,7 +305,11 @@ def banker():
     # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
     die_scores = pred_1['scores'][pred_1['scores'] > MIN_SCORE]
     
-    enemy_coordinates_list = dieCoordinates[die_class_indexes == 7].tolist() 
+    enemy_coordinates_list = dieCoordinates[die_class_indexes == 3].tolist() 
+    
+    die_class_indexes = die_class_indexes.tolist()
+    # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
+    die_scores = die_scores.tolist()
     
     if len(enemy_coordinates_list) > 0:
         center_enemy_x_len_list = []
@@ -327,24 +331,105 @@ def banker():
                 most_centered_hypotenuse = hypotenuse
                 most_centered_to_enemy_x = center_enemy_x_len_list[index]
                 most_centered_to_enemy_y = center_enemy_y_len_list[index]
+                index_to_use = index
         
-        x_move = int( (most_centered_to_enemy_x + x_screen_start) * 2/3 )
-        y_move = int( (most_centered_to_enemy_y + y_screen_start) * 2/3 )
+        
+        x_click, y_click = rand_spot(enemy_coordinates_list[index_to_use][0], 
+                                     enemy_coordinates_list[index_to_use][2], 
+                                     enemy_coordinates_list[index_to_use][1], 
+                                     enemy_coordinates_list[index_to_use][3])
+        
+        x_move = int( (x_click + x_screen_start) * 2/3 )
+        y_move = int( (y_click + y_screen_start) * 2/3 )
     
-    left_click(x_move, y_move, time_sleep = 1)
+    left_click(x_move, y_move, time_sleep = 2)
     # -------------------------------------------------------------------------
+    
+    
+    # bank deposit all inventory section
+    inv_start_x = 1150
+    inv_start_y = 1080
+    
+    x_start = int((x_screen_start + inv_start_x)*2/3)
+    y_start = int((y_screen_start + inv_start_y)*2/3)
+    
+    left_click(x_start, y_start, time_sleep = 1)
+    
+    
+    # # Grabs Pickaxe Section
+    # # -------------------------------------------------------------------------
+    # # winsound.Beep(frequency, duration)
+    # temp_screenshot = ImageGrab.grab(bbox =(screenshot_sizer.size[0]-2100, 
+    #                                    0,
+    #                                    screenshot_sizer.size[0], 
+    #                                    screenshot_sizer.size[1]
+    #                                    )
+    #                             )
+    
+    # # temp_screenshot.save('./Images/Screenshots/image-{}.jpg'.format(ii))
+    
+    # screenshot_cv2 = np.array(temp_screenshot)
+    # # screenshot_cv2 = cv2.cvtColor(screenshot_cv2, cv2.COLOR_BGR2RGB)
+    
+    # transformed_image = transforms_1(image=screenshot_cv2)
+    # transformed_image = transformed_image["image"]
+    
+    # with torch.no_grad():
+    #     prediction_1 = model_1([(transformed_image/255).to(device)])
+    #     pred_1 = prediction_1[0]
+    
+    # dieCoordinates = pred_1['boxes'][pred_1['scores'] > MIN_SCORE]
+    # die_class_indexes = pred_1['labels'][pred_1['scores'] > MIN_SCORE]
+    # # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
+    # die_scores = pred_1['scores'][pred_1['scores'] > MIN_SCORE]
+    
+    # enemy_coordinates_list = dieCoordinates[die_class_indexes == 10].tolist() 
+    
+    # if len(enemy_coordinates_list) > 0:
+    #     center_enemy_x_len_list = []
+    #     center_enemy_y_len_list = []
+    #     for enemy_coordinates in enemy_coordinates_list:
+    #         center_enemy_x = int(enemy_coordinates[0]
+    #                             +(enemy_coordinates[2]-enemy_coordinates[0])/2
+    #                             )
+    #         center_enemy_y = int(enemy_coordinates[1]
+    #                             +(enemy_coordinates[3]-enemy_coordinates[1])/2
+    #                             )
+    #         center_enemy_x_len_list.append(center_enemy_x)
+    #         center_enemy_y_len_list.append(center_enemy_y)
+        
+    #     most_centered_hypotenuse = 100000
+    #     for index, enemy_coordinates in enumerate(enemy_coordinates_list):
+    #         hypotenuse = sqrt(center_enemy_y_len_list[index]**2 + center_enemy_x_len_list[index]**2)
+    #         if hypotenuse < most_centered_hypotenuse:
+    #             most_centered_hypotenuse = hypotenuse
+    #             most_centered_to_enemy_x = center_enemy_x_len_list[index]
+    #             most_centered_to_enemy_y = center_enemy_y_len_list[index]
+    #             index_to_use = index
+        
+        
+    #     x_click, y_click = rand_spot(enemy_coordinates_list[index_to_use][0], 
+    #                                  enemy_coordinates_list[index_to_use][2], 
+    #                                  enemy_coordinates_list[index_to_use][1], 
+    #                                  enemy_coordinates_list[index_to_use][3])
+        
+    #     x_move = int( (x_click + x_screen_start) * 2/3 )
+    #     y_move = int( (y_click + y_screen_start) * 2/3 )
+    
+    # left_click(x_move, y_move, time_sleep = 1)
+    # # -------------------------------------------------------------------------
     
     
     # Runs back section
     # -------------------------------------------------------------------------
-    inv_start_x = 2020-55
-    inv_start_y = 160-10
+    inv_start_x = 4970 # Iron: 1965; Coal: 4970
+    inv_start_y = 188 # Iron: 150; Coal: 188
     
     x_start = int((x_screen_start + inv_start_x)*2/3)
     y_start = int((y_screen_start + inv_start_y)*2/3)
     
     
-    left_click(x_start, y_start, time_sleep = 9.5)
+    left_click(x_start, y_start, time_sleep = 5.5)
     # -------------------------------------------------------------------------
 
 
@@ -633,7 +718,7 @@ def mining(x_screen_start, y_screen_start, ii, stop_index):
     dieCoordinates = pred_1['boxes'][pred_1['scores'] > MIN_SCORE]
     die_class_indexes = pred_1['labels'][pred_1['scores'] > MIN_SCORE]
     
-    enemy_coordinates_list = dieCoordinates[die_class_indexes == 6].tolist()
+    enemy_coordinates_list = dieCoordinates[die_class_indexes == 5].tolist()
     
     if len(enemy_coordinates_list) > 0:
         center_enemy_x_len_list = []
@@ -649,15 +734,25 @@ def mining(x_screen_start, y_screen_start, ii, stop_index):
             center_enemy_y_len_list.append(center_enemy_y)
         
         most_centered_hypotenuse = 100000
+        index_to_use = 999
         for index, enemy_coordinates in enumerate(enemy_coordinates_list):
             hypotenuse = sqrt(center_enemy_y_len_list[index]**2 + center_enemy_x_len_list[index]**2)
             if hypotenuse < most_centered_hypotenuse:
                 most_centered_hypotenuse = hypotenuse
                 most_centered_to_enemy_x = center_enemy_x_len_list[index]
                 most_centered_to_enemy_y = center_enemy_y_len_list[index]
+                index_to_use = index
         
-        x_move = int( (most_centered_to_enemy_x + x_screen_start) * 2/3 )
-        y_move = int( (most_centered_to_enemy_y + y_screen_start) * 2/3 )
+        
+        x_click, y_click = rand_spot(enemy_coordinates_list[index_to_use][0], 
+                                     enemy_coordinates_list[index_to_use][2], 
+                                     enemy_coordinates_list[index_to_use][1], 
+                                     enemy_coordinates_list[index_to_use][3])
+        
+        # x_move = int( (most_centered_to_enemy_x + x_screen_start) * 2/3 )
+        # y_move = int( (most_centered_to_enemy_y + y_screen_start) * 2/3 )
+        x_move = int( (x_click + x_screen_start) * 2/3 )
+        y_move = int( (y_click + y_screen_start) * 2/3 )
         
         # x_move = int( (center_enemy_x_len_list[0] + x_screen_start) * 2/3 )
         # y_move = int( (center_enemy_y_len_list[0] + y_screen_start) * 2/3 )
@@ -703,7 +798,7 @@ classes_1
 
 
 # lets load the faster rcnn model
-model_1 = models.detection.fasterrcnn_resnet50_fpn_v2(pretrained=True, box_detections_per_img=500)
+model_1 = models.detection.fasterrcnn_resnet50_fpn(pretrained=True, box_detections_per_img=500)
 in_features = model_1.roi_heads.box_predictor.cls_score.in_features # we need to change the head
 model_1.roi_heads.box_predictor = models.detection.faster_rcnn.FastRCNNPredictor(in_features, n_classes_1)
 
@@ -741,7 +836,7 @@ y_screen_start = 500
 
 for i in range(1000):
     stop_index = 0
-    for ii in range(27):
+    for ii in range(28):
         stop_index = mining(x_screen_start, y_screen_start, ii, stop_index)
     
     banker()
