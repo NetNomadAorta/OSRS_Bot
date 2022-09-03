@@ -22,6 +22,7 @@ import time
 from math import sqrt
 from torchvision.utils import save_image
 import sys
+from datetime import datetime
 
 import win32gui
 
@@ -39,43 +40,8 @@ SAVE_NAME_OD = "./Models/OSRS_Mining-0.model"
 DATASET_PATH = "./Training_Data/" + SAVE_NAME_OD.split("./Models/",1)[1].split("-",1)[0] +"/"
 IMAGE_SIZE              = int(re.findall(r'\d+', SAVE_NAME_OD)[-1] ) # Row and column number 
 MIN_SCORE               = 0.7
-TIME_BETWEEN_MINING     = 4 # Set 2.0 default for one pick iron
+TIME_BETWEEN_MINING     = 6 # Set 4.0 default for iron ore with mith pick
 
-
-# def predicter(
-#               ):
-    
-#     # screenshot_x1 = screenshot_sizer.size[0]-2100, 
-#     # screenshot_y1 = 0, 
-#     # screenshot_x2 = screenshot_sizer.size[0], 
-#     # screenshot_y2 = screenshot_sizer.size[1]
-    
-#     screenshot_sizer = ImageGrab.grab()
-    
-#     # winsound.Beep(frequency, duration)
-#     temp_screenshot = ImageGrab.grab(bbox =(screenshot_x1, 
-#                                             screenshot_y1,
-#                                             screenshot_x2, 
-#                                             screenshot_y2
-#                                             )
-#                                      )
-    
-#     # temp_screenshot.save('./Images/Screenshots/image-{}.jpg'.format(ii))
-    
-#     screenshot_cv2 = np.array(temp_screenshot)
-#     # screenshot_cv2 = cv2.cvtColor(screenshot_cv2, cv2.COLOR_BGR2RGB)
-    
-#     transformed_image = transforms_1(image=screenshot_cv2)
-#     transformed_image = transformed_image["image"]
-    
-#     with torch.no_grad():
-#         prediction_1 = model_1([(transformed_image/255).to(device)])
-#         pred_1 = prediction_1[0]
-    
-#     dieCoordinates = pred_1['boxes'][pred_1['scores'] > MIN_SCORE]
-#     die_class_indexes = pred_1['labels'][pred_1['scores'] > MIN_SCORE]
-    
-#     return (dieCoordinates, die_class_indexes)
     
 
 def most_centered_coordinates(dieCoordinates, die_class_indexes, interested_index=2):
@@ -103,17 +69,21 @@ def most_centered_coordinates(dieCoordinates, die_class_indexes, interested_inde
                 most_centered_to_enemy_x = center_enemy_x_len_list[index]
                 most_centered_to_enemy_y = center_enemy_y_len_list[index]
         
-        x_move = int( (most_centered_to_enemy_x + x_screen_start) * 2/3 )
-        y_move = int( (most_centered_to_enemy_y + y_screen_start) * 2/3 )
+        x_move = most_centered_to_enemy_x + x_screen_start
+        y_move = most_centered_to_enemy_y + y_screen_start
     
     return (x_move, y_move)
 
 
 def cursor(x,y):
+    x = int(x*2/3)
+    y = int(y*2/3)
     win32api.SetCursorPos((x,y))
 
 
 def left_click(x, y, time_sleep = 0):
+    x = int(x*2/3)
+    y = int(y*2/3)
     win32api.SetCursorPos((x,y))
     time.sleep(0.1)
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,x,y,0,0)
@@ -146,8 +116,8 @@ def drop_inventory():
     inv_start_y = 940
 
     # Coordinates of first inventory slot
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     for y_index in range(7):
         for x_index in range(4):
@@ -199,8 +169,8 @@ def banker():
     inv_start_x = 1800
     inv_start_y = 70
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, time_sleep = 0.6)
     
@@ -210,72 +180,72 @@ def banker():
     # -------------------------------------------------------------------------
     
     
-    # Runs to bank section
-    # -------------------------------------------------------------------------
-    # winsound.Beep(frequency, duration)
-    temp_screenshot = ImageGrab.grab(bbox =(screenshot_sizer.size[0]-2100, 
-                                       0,
-                                       screenshot_sizer.size[0], 
-                                       screenshot_sizer.size[1]
-                                       )
-                                )
+    # # Runs to bank section
+    # # -------------------------------------------------------------------------
+    # # winsound.Beep(frequency, duration)
+    # temp_screenshot = ImageGrab.grab(bbox =(screenshot_sizer.size[0]-2100, 
+    #                                    0,
+    #                                    screenshot_sizer.size[0], 
+    #                                    screenshot_sizer.size[1]
+    #                                    )
+    #                             )
     
-    # temp_screenshot.save('./Images/Screenshots/image-{}.jpg'.format(ii))
+    # # temp_screenshot.save('./Images/Screenshots/image-{}.jpg'.format(ii))
     
-    screenshot_cv2 = np.array(temp_screenshot)
-    # screenshot_cv2 = cv2.cvtColor(screenshot_cv2, cv2.COLOR_BGR2RGB)
+    # screenshot_cv2 = np.array(temp_screenshot)
+    # # screenshot_cv2 = cv2.cvtColor(screenshot_cv2, cv2.COLOR_BGR2RGB)
     
-    transformed_image = transforms_1(image=screenshot_cv2)
-    transformed_image = transformed_image["image"]
+    # transformed_image = transforms_1(image=screenshot_cv2)
+    # transformed_image = transformed_image["image"]
     
-    with torch.no_grad():
-        prediction_1 = model_1([(transformed_image/255).to(device)])
-        pred_1 = prediction_1[0]
+    # with torch.no_grad():
+    #     prediction_1 = model_1([(transformed_image/255).to(device)])
+    #     pred_1 = prediction_1[0]
     
-    dieCoordinates = pred_1['boxes'][pred_1['scores'] > MIN_SCORE]
-    die_class_indexes = pred_1['labels'][pred_1['scores'] > MIN_SCORE]
-    # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
-    die_scores = pred_1['scores'][pred_1['scores'] > MIN_SCORE]
+    # dieCoordinates = pred_1['boxes'][pred_1['scores'] > MIN_SCORE]
+    # die_class_indexes = pred_1['labels'][pred_1['scores'] > MIN_SCORE]
+    # # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
+    # die_scores = pred_1['scores'][pred_1['scores'] > MIN_SCORE]
     
-    enemy_coordinates_list = dieCoordinates[die_class_indexes == 4].tolist() 
+    # enemy_coordinates_list = dieCoordinates[die_class_indexes == 4].tolist() 
     
-    die_class_indexes = die_class_indexes.tolist()
-    # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
-    die_scores = die_scores.tolist()
+    # die_class_indexes = die_class_indexes.tolist()
+    # # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
+    # die_scores = die_scores.tolist()
     
-    if len(enemy_coordinates_list) > 0:
-        center_enemy_x_len_list = []
-        center_enemy_y_len_list = []
-        for enemy_coordinates in enemy_coordinates_list:
-            center_enemy_x = int(enemy_coordinates[0]
-                                +(enemy_coordinates[2]-enemy_coordinates[0])/2
-                                )
-            center_enemy_y = int(enemy_coordinates[1]
-                                +(enemy_coordinates[3]-enemy_coordinates[1])/2
-                                )
-            center_enemy_x_len_list.append(center_enemy_x)
-            center_enemy_y_len_list.append(center_enemy_y)
+    # if len(enemy_coordinates_list) > 0:
+    #     center_enemy_x_len_list = []
+    #     center_enemy_y_len_list = []
+    #     for enemy_coordinates in enemy_coordinates_list:
+    #         center_enemy_x = int(enemy_coordinates[0]
+    #                             +(enemy_coordinates[2]-enemy_coordinates[0])/2
+    #                             )
+    #         center_enemy_y = int(enemy_coordinates[1]
+    #                             +(enemy_coordinates[3]-enemy_coordinates[1])/2
+    #                             )
+    #         center_enemy_x_len_list.append(center_enemy_x)
+    #         center_enemy_y_len_list.append(center_enemy_y)
         
-        most_centered_hypotenuse = 100000
-        for index, enemy_coordinates in enumerate(enemy_coordinates_list):
-            hypotenuse = sqrt(center_enemy_y_len_list[index]**2 + center_enemy_x_len_list[index]**2)
-            if hypotenuse < most_centered_hypotenuse:
-                most_centered_hypotenuse = hypotenuse
-                most_centered_to_enemy_x = center_enemy_x_len_list[index]
-                most_centered_to_enemy_y = center_enemy_y_len_list[index]
-                index_to_use = index
+    #     most_centered_hypotenuse = 100000
+    #     for index, enemy_coordinates in enumerate(enemy_coordinates_list):
+    #         hypotenuse = sqrt(center_enemy_y_len_list[index]**2 + center_enemy_x_len_list[index]**2)
+    #         if hypotenuse < most_centered_hypotenuse:
+    #             most_centered_hypotenuse = hypotenuse
+    #             most_centered_to_enemy_x = center_enemy_x_len_list[index]
+    #             most_centered_to_enemy_y = center_enemy_y_len_list[index]
+    #             index_to_use = index
         
         
-        x_click, y_click = rand_spot(enemy_coordinates_list[index_to_use][0], 
-                                     enemy_coordinates_list[index_to_use][2], 
-                                     enemy_coordinates_list[index_to_use][1], 
-                                     enemy_coordinates_list[index_to_use][3])
+    #     x_click, y_click = rand_spot(enemy_coordinates_list[index_to_use][0], 
+    #                                  enemy_coordinates_list[index_to_use][2], 
+    #                                  enemy_coordinates_list[index_to_use][1], 
+    #                                  enemy_coordinates_list[index_to_use][3])
         
-        x_move = int( (x_click + x_screen_start) * 2/3 )
-        y_move = int( (y_click + y_screen_start) * 2/3 )
+    #     x_move = x_click + x_screen_start
+    #     y_move = y_click + y_screen_start
     
-    left_click(x_move, y_move, time_sleep = 2)
-    # -------------------------------------------------------------------------
+    # left_click(x_move, y_move, time_sleep = 4)
+    # # -------------------------------------------------------------------------
     
     
     # Clicks Bank
@@ -339,31 +309,32 @@ def banker():
                                      enemy_coordinates_list[index_to_use][1], 
                                      enemy_coordinates_list[index_to_use][3])
         
-        x_move = int( (x_click + x_screen_start) * 2/3 )
-        y_move = int( (y_click + y_screen_start) * 2/3 )
+        x_move = x_click + x_screen_start
+        y_move = y_click + y_screen_start
     
-    left_click(x_move, y_move, time_sleep = 2)
+    left_click(x_move, y_move, time_sleep = 4.5)
     # -------------------------------------------------------------------------
     
     
     # bank deposit all inventory section
+    # -------------------------------------------------------------------------
     inv_start_x = 1150
     inv_start_y = 1080
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, time_sleep = 1)
+    # -------------------------------------------------------------------------
     
     
-    # # Grabs Pickaxe Section
-    # # -------------------------------------------------------------------------
-    # # winsound.Beep(frequency, duration)
+    # Grabs Pickaxe Section
+    # -------------------------------------------------------------------------
     # temp_screenshot = ImageGrab.grab(bbox =(screenshot_sizer.size[0]-2100, 
-    #                                    0,
-    #                                    screenshot_sizer.size[0], 
-    #                                    screenshot_sizer.size[1]
-    #                                    )
+    #                                     0,
+    #                                     screenshot_sizer.size[0], 
+    #                                     screenshot_sizer.size[1]
+    #                                     )
     #                             )
     
     # # temp_screenshot.save('./Images/Screenshots/image-{}.jpg'.format(ii))
@@ -378,12 +349,12 @@ def banker():
     #     prediction_1 = model_1([(transformed_image/255).to(device)])
     #     pred_1 = prediction_1[0]
     
-    # dieCoordinates = pred_1['boxes'][pred_1['scores'] > MIN_SCORE]
-    # die_class_indexes = pred_1['labels'][pred_1['scores'] > MIN_SCORE]
+    # dieCoordinates = pred_1['boxes'][pred_1['scores'] > 0.07]
+    # die_class_indexes = pred_1['labels'][pred_1['scores'] > 0.07]
     # # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
-    # die_scores = pred_1['scores'][pred_1['scores'] > MIN_SCORE]
+    # die_scores = pred_1['scores'][pred_1['scores'] > 0.07]
     
-    # enemy_coordinates_list = dieCoordinates[die_class_indexes == 10].tolist() 
+    # enemy_coordinates_list = dieCoordinates[die_class_indexes == 2].tolist() 
     
     # if len(enemy_coordinates_list) > 0:
     #     center_enemy_x_len_list = []
@@ -409,15 +380,18 @@ def banker():
         
         
     #     x_click, y_click = rand_spot(enemy_coordinates_list[index_to_use][0], 
-    #                                  enemy_coordinates_list[index_to_use][2], 
-    #                                  enemy_coordinates_list[index_to_use][1], 
-    #                                  enemy_coordinates_list[index_to_use][3])
+    #                                   enemy_coordinates_list[index_to_use][2], 
+    #                                   enemy_coordinates_list[index_to_use][1], 
+    #                                   enemy_coordinates_list[index_to_use][3])
         
-    #     x_move = int( (x_click + x_screen_start) * 2/3 )
-    #     y_move = int( (y_click + y_screen_start) * 2/3 )
+    #     x_move = x_click + x_screen_start
+    #     y_move = y_click + y_screen_start
     
     # left_click(x_move, y_move, time_sleep = 1)
-    # # -------------------------------------------------------------------------
+    
+    # ALTERNATIVE
+    left_click(4140, 720, time_sleep = 1)
+    # -------------------------------------------------------------------------
     
     
     # Runs back section
@@ -425,11 +399,11 @@ def banker():
     inv_start_x = 4970 # Iron: 1965; Coal: 4970
     inv_start_y = 188 # Iron: 150; Coal: 188
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x - x_screen_start
+    y_start = y_screen_start + inv_start_y - y_screen_start
     
     
-    left_click(x_start, y_start, time_sleep = 5.5)
+    left_click(x_start, y_start, time_sleep = 4)
     # -------------------------------------------------------------------------
 
 
@@ -447,8 +421,8 @@ def banker_varrock():
     inv_start_x = 1800
     inv_start_y = 70
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, time_sleep = 0.1)
     
@@ -464,8 +438,8 @@ def banker_varrock():
     inv_start_x = 1820+100+40
     inv_start_y = 60+5
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, 13)
     
@@ -473,8 +447,8 @@ def banker_varrock():
     inv_start_x = 1820+100
     inv_start_y = 60+5
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, 13)
     
@@ -484,8 +458,8 @@ def banker_varrock():
     inv_start_x = 1820+10
     inv_start_y = 60+5+50
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, 13)
     
@@ -493,8 +467,8 @@ def banker_varrock():
     inv_start_x = 1820
     inv_start_y = 60+5+120
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, 14)
     
@@ -502,8 +476,8 @@ def banker_varrock():
     inv_start_x = 1820+50
     inv_start_y = 60+5+150
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, 13)
     # -------------------------------------------------------------------------
@@ -515,8 +489,8 @@ def banker_varrock():
     inv_start_x = 1050
     inv_start_y = 800
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, 2)
     # -------------------------------------------------------------------------
@@ -527,8 +501,8 @@ def banker_varrock():
     inv_start_x = 1150
     inv_start_y = 1080
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     
     left_click(x_start, y_start, 1)
@@ -540,8 +514,8 @@ def banker_varrock():
     inv_start_x = 1820+180
     inv_start_y = 60+60
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, 13)
     
@@ -549,8 +523,8 @@ def banker_varrock():
     inv_start_x = 1820+180
     inv_start_y = 200
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, 13)
     
@@ -558,8 +532,8 @@ def banker_varrock():
     inv_start_x = 1820+140
     inv_start_y = 260
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, 13)
     
@@ -567,8 +541,8 @@ def banker_varrock():
     inv_start_x = 1820+100
     inv_start_y = 260
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, 13)
     
@@ -578,8 +552,8 @@ def banker_varrock():
     inv_start_x = 1820+50
     inv_start_y = 210
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, 13)
     # -------------------------------------------------------------------------
@@ -599,8 +573,8 @@ def trader_drawf_mine():
     inv_start_x = 1800
     inv_start_y = 70
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     
     left_click(x_start, y_start, time_sleep = 0.1)
@@ -617,8 +591,8 @@ def trader_drawf_mine():
     inv_start_x = 1800+140
     inv_start_y = 60
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, 20)
     # -------------------------------------------------------------------------
@@ -635,8 +609,8 @@ def trader_drawf_mine():
     inv_start_x = 1150
     inv_start_y = 1080
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     
     left_click(x_start, y_start, 1)
@@ -648,8 +622,8 @@ def trader_drawf_mine():
     inv_start_x = 1820+180
     inv_start_y = 60+60
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, 13)
     
@@ -657,8 +631,8 @@ def trader_drawf_mine():
     inv_start_x = 1820+180
     inv_start_y = 200
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, 13)
     
@@ -666,8 +640,8 @@ def trader_drawf_mine():
     inv_start_x = 1820+140
     inv_start_y = 260
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, 13)
     
@@ -675,8 +649,8 @@ def trader_drawf_mine():
     inv_start_x = 1820+100
     inv_start_y = 260
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, 13)
     
@@ -686,19 +660,25 @@ def trader_drawf_mine():
     inv_start_x = 1820+50
     inv_start_y = 210
     
-    x_start = int((x_screen_start + inv_start_x)*2/3)
-    y_start = int((y_screen_start + inv_start_y)*2/3)
+    x_start = x_screen_start + inv_start_x
+    y_start = y_screen_start + inv_start_y
     
     left_click(x_start, y_start, 13)
     # -------------------------------------------------------------------------
 
 
-def mining(x_screen_start, y_screen_start, ii, stop_index):
+def mining(x_screen_start, y_screen_start, ii, stop_index, 
+           num_ore_collected, force_mine, force_mine_count):
     
+    prev_num_ore_collected = num_ore_collected
+    
+    
+    # Searches for number of ores collected
+    # -------------------------------------------------------------------------
     # winsound.Beep(frequency, duration)
-    temp_screenshot = ImageGrab.grab(bbox =(screenshot_sizer.size[0]-1500, 
-                                       500,
-                                       screenshot_sizer.size[0]-350, 
+    temp_screenshot = ImageGrab.grab(bbox =(screenshot_sizer.size[0]-450, 
+                                       850,
+                                       screenshot_sizer.size[0], 
                                        screenshot_sizer.size[1]
                                        )
                                 )
@@ -718,7 +698,55 @@ def mining(x_screen_start, y_screen_start, ii, stop_index):
     dieCoordinates = pred_1['boxes'][pred_1['scores'] > MIN_SCORE]
     die_class_indexes = pred_1['labels'][pred_1['scores'] > MIN_SCORE]
     
+    ore_collected_list = dieCoordinates[die_class_indexes == 7].tolist()
+    
+    num_ore_collected = len(ore_collected_list)
+    # -------------------------------------------------------------------------
+    
+    
+    # Looks at ores
+    # -------------------------------------------------------------------------
+    # winsound.Beep(frequency, duration)
+    temp_screenshot = ImageGrab.grab(bbox =(screenshot_sizer.size[0]-1250, 
+                                       380,
+                                       screenshot_sizer.size[0]-350-400, 
+                                       screenshot_sizer.size[1]-100
+                                       )
+                                )
+    
+    # temp_screenshot.save('./Images/Screenshots/image-{}.jpg'.format(ii))
+    
+    screenshot_cv2 = np.array(temp_screenshot)
+    # screenshot_cv2 = cv2.cvtColor(screenshot_cv2, cv2.COLOR_BGR2RGB)
+    
+    transformed_image = transforms_1(image=screenshot_cv2)
+    transformed_image = transformed_image["image"]
+    
+    with torch.no_grad():
+        prediction_1 = model_1([(transformed_image/255).to(device)])
+        pred_1 = prediction_1[0]
+    
+    dieCoordinates = pred_1['boxes'][pred_1['scores'] > MIN_SCORE]
+    die_class_indexes = pred_1['labels'][pred_1['scores'] > MIN_SCORE]
+    
     enemy_coordinates_list = dieCoordinates[die_class_indexes == 5].tolist()
+    # -------------------------------------------------------------------------
+    
+    # Searches if still mining
+    if ((num_ore_collected == prev_num_ore_collected 
+         or len(enemy_coordinates_list) == 0
+         )
+        and not force_mine
+        ):
+        time.sleep(1)
+        
+        force_mine_count += 1
+        
+        if force_mine_count >= 3:
+            force_mine = True
+            force_mine_count = 0
+        
+        return stop_index, num_ore_collected, force_mine, force_mine_count
     
     if len(enemy_coordinates_list) > 0:
         center_enemy_x_len_list = []
@@ -749,31 +777,39 @@ def mining(x_screen_start, y_screen_start, ii, stop_index):
                                      enemy_coordinates_list[index_to_use][1], 
                                      enemy_coordinates_list[index_to_use][3])
         
-        # x_move = int( (most_centered_to_enemy_x + x_screen_start) * 2/3 )
-        # y_move = int( (most_centered_to_enemy_y + y_screen_start) * 2/3 )
-        x_move = int( (x_click + x_screen_start) * 2/3 )
-        y_move = int( (y_click + y_screen_start) * 2/3 )
+        # x_move = most_centered_to_enemy_x + x_screen_start
+        # y_move = most_centered_to_enemy_y + y_screen_start
+        x_move = x_click + x_screen_start
+        y_move = y_click + y_screen_start
         
-        # x_move = int( (center_enemy_x_len_list[0] + x_screen_start) * 2/3 )
-        # y_move = int( (center_enemy_y_len_list[0] + y_screen_start) * 2/3 )
+        # x_move = center_enemy_x_len_list[0] + x_screen_start
+        # y_move = center_enemy_y_len_list[0] + y_screen_start
         
-        win32api.SetCursorPos((x_move, y_move))
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_move, y_move, 0, 0)
-        time.sleep(0.1)
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_move, y_move, 0, 0)
-        time.sleep(0.01)
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x_move, y_move, 0, 0)
-        time.sleep(0.1)
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x_move, y_move, 0, 0)
-        time.sleep(TIME_BETWEEN_MINING)
-        # time.sleep(random.randrange(1))
-        return stop_index
+        left_click(x_move, y_move, time_sleep = TIME_BETWEEN_MINING)
+        
+        force_mine = False
+        force_mine_count = 0
+        
+        return stop_index, num_ore_collected, force_mine, force_mine_count
     else:
         stop_index += 1
+        force_mine = False
+        
         if stop_index == 20:
             print("Stopping!")
+
+            # datetime object containing current date and time
+            now = datetime.now()
+             
+            print("now =", now)
+            
+            # dd/mm/YY H:M:S
+            dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+            print("date and time =", dt_string)	
+            
             sys.exit()
-        return stop_index
+        
+        return stop_index, num_ore_collected, force_mine, force_mine_count
 
 
 
@@ -830,14 +866,29 @@ transforms_1 = A.Compose([
 screenshot_sizer = ImageGrab.grab()
 
 # Finds window size and where coordinates starts and ends in window
-x_screen_start = screenshot_sizer.size[0]-1500
-y_screen_start = 500
+x_screen_start = screenshot_sizer.size[0]-1250
+y_screen_start = 380
 
 
-for i in range(1000):
+while True:
     stop_index = 0
-    for ii in range(28):
-        stop_index = mining(x_screen_start, y_screen_start, ii, stop_index)
+    num_ore_collected = 99
+    force_mine = True
+    force_mine_count = 0
+    while True:
+        ii = 0
+        (stop_index, num_ore_collected, 
+         force_mine, force_mine_count) = mining(x_screen_start, 
+                                                y_screen_start, 
+                                                ii, 
+                                                stop_index,
+                                                num_ore_collected,
+                                                force_mine,
+                                                force_mine_count
+                                                )
+        if num_ore_collected == 23:
+            break
+        ii += 1
     
     banker()
     
@@ -845,8 +896,8 @@ for i in range(1000):
     
     # drop_inventory()
 
-# win32api.SetCursorPos((int((x_screen_start+1025)*2/3), int((y_screen_start+625)*2/3)))
-# win32api.SetCursorPos((int((x_screen_start+950)*2/3), int((y_screen_start+700)*2/3)))
+# win32api.SetCursorPos((x_screen_start+1025, y_screen_start+625))
+# win32api.SetCursorPos((x_screen_start+950, y_screen_start+700))
 
 
 

@@ -15,14 +15,21 @@ MIN_SCORE               = 0.7
 TIME_BETWEEN_MINING     = 4 # Set 2.0 default for one pick iron
 
 
-def cursor(x,y):
-    win32api.SetCursorPos((x,y))
-
-
-def left_click(x, y, time_sleep = 0, should_scaler = False):
+def cursor(x,y, should_scaler = False):
     if should_scaler:
         x = int(x*2/3)
         y = int(y*2/3)
+    win32api.SetCursorPos((x,y))
+
+
+def left_click(x, y, time_sleep = 0, should_scaler = False, 
+               should_rand_click = True):
+    if should_scaler:
+        x = int(x*2/3)
+        y = int(y*2/3)
+    if should_rand_click:
+        x = x + random.randint(-8, 8)
+        y = y + random.randint(-8, 8)
     win32api.SetCursorPos((x,y))
     time.sleep(0.1)
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,x,y,0,0)
@@ -34,7 +41,7 @@ def left_click(x, y, time_sleep = 0, should_scaler = False):
 
 def fix_minimap():
     
-    left_click(4820, 70, time_sleep = 0.6, should_scaler=True)
+    left_click(4820, 70, time_sleep = 0.6, should_scaler=False)
     
     win32api.keybd_event(0x26, 0,0,0)
     time.sleep(0.6)
@@ -42,36 +49,32 @@ def fix_minimap():
 
 
 def smelter():
-    # Clicks Furnace
-    left_click(2800, 460, time_sleep=1.5)
+    # Clicks Anvil
+    left_click(4065, 815, time_sleep=1.5)
     
-    # Clicks Steel
-    left_click(3440, 1245, time_sleep=28, should_scaler=True)
+    # Clicks item to smith
+    x = 4040-120*2
+    y = 590+80*2
+    left_click(x, y, time_sleep=80)
 
 
 def banker():
     fix_minimap()
     
     # Runs to bank
-    left_click(3248, 131, time_sleep=7)
+    left_click(4921, 112, time_sleep=5, should_rand_click = False)
     
     # Clicks bank
-    left_click(2715, 540, time_sleep=1.5)
+    left_click(4170, 650, time_sleep=1)
     
     # Deposits all
-    left_click(2782, 718, time_sleep=0.5)
+    left_click(4870, 940, time_sleep=0.5)
     
-    # Withdraws Iron Ore
-    left_click(4064, 667, time_sleep=0.5, should_scaler=True)
+    # Withdraw bars
+    left_click(3635, 725, time_sleep=0.5)
     
-    # Withdraws Coal Ore
-    left_click(4142, 667, time_sleep=0.5, should_scaler=True)
-    
-    # Withdraws Coal Ore
-    left_click(4142, 667, time_sleep=0.5, should_scaler=True)
-    
-    # Runs to smelter
-    left_click(3338, 90, time_sleep=7)
+    # Runs to anvil
+    left_click(4955, 220, time_sleep=5, should_rand_click = False)
 
 
 
