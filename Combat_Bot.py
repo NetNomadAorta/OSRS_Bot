@@ -195,7 +195,7 @@ x_screen_start = screenshot_sizer.size[0]-2100
 y_screen_start = 0
 
 
-for i in range(10000):
+while True:
     combat_bot()
 
 
