@@ -30,7 +30,7 @@ import win32gui
 SAVE_NAME_OD = "./Models/OSRS_Agility-0.model"
 DATASET_PATH = "./Training_Data/" + SAVE_NAME_OD.split("./Models/",1)[1].split("-",1)[0] +"/"
 IMAGE_SIZE              = int(re.findall(r'\d+', SAVE_NAME_OD)[-1] ) # Row and column number 
-MIN_SCORE               = 0.7
+MIN_SCORE               = 0.6
 
 
 def cursor(x,y):
@@ -38,7 +38,7 @@ def cursor(x,y):
 
 
 def left_click(x, y, time_sleep = 0, should_scaler = False, 
-               should_rand_click = True):
+               should_rand_click = False):
     if should_scaler:
         x = int(x*2/3)
         y = int(y*2/3)
@@ -52,6 +52,17 @@ def left_click(x, y, time_sleep = 0, should_scaler = False,
     # winsound.Beep(frequency, duration)
     time.sleep(time_sleep)
     time.sleep(random.randrange(1))
+
+
+def rand_spot(x_min, x_max, y_min, y_max):
+    x_min = int( x_min + 0.25*(x_max-x_min) )
+    x_max = int( x_max - 0.25*(x_max-x_min) )
+    y_min = int( y_min + 0.25*(y_max-y_min) )
+    y_max = int( y_max - 0.25*(y_max-y_min) )
+    
+    x_click = random.randrange(x_min, x_max)
+    y_click = random.randrange(y_min, y_max)
+    return x_click, y_click
 
 
 def fix_minimap():
@@ -138,33 +149,16 @@ def coord_to_move_to(dieCoordinates, die_class_indexes, interested_index=0):
     
     
     if interested_index_found:
-        # Checks to see if affect of 1st location click still leaves avatar floating
-        if interested_index == 3:
-            if (dieCoordinates[die_class_indexes == interested_index][0][1] > int(screenshot_sizer.size[1]*.40)
-                and dieCoordinates[die_class_indexes == interested_index][0][3] < int(screenshot_sizer.size[1]*.60) ):
-                needs_repeat = False
-                enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index].tolist()
-            else:
-                needs_repeat = True
-                enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index-1].tolist()
-        else:
-            needs_repeat = False
-            enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index].tolist()
+        needs_repeat = False
+        enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index].tolist()
     
-    center_enemy_x = int(enemy_coordinates_list[0][0]
-                        +(enemy_coordinates_list[0][2]-enemy_coordinates_list[0][0])/2
-                        )
-    if interested_index == 1:
-        center_enemy_y = int(enemy_coordinates_list[0][1]
-                            +(enemy_coordinates_list[0][3]-enemy_coordinates_list[0][1])/5
-                            )
-    else:
-        center_enemy_y = int(enemy_coordinates_list[0][1]
-                            +(enemy_coordinates_list[0][3]-enemy_coordinates_list[0][1])/2
-                            )
+    x_click, y_click = rand_spot(enemy_coordinates_list[0][0], 
+                                 enemy_coordinates_list[0][2], 
+                                 enemy_coordinates_list[0][1], 
+                                 enemy_coordinates_list[0][3])
 
-    x_move = int( (center_enemy_x + x_screen_start) * 2/3 )
-    y_move = int( (center_enemy_y + y_screen_start) * 2/3 )
+    x_move = int( (x_click + x_screen_start) * 2/3 )
+    y_move = int( (y_click + y_screen_start) * 2/3 )
     
     return (x_move, y_move, needs_repeat, skip_to_end)
 
@@ -192,25 +186,25 @@ def agility_trainer():
     fix_minimap()
     
     # Starts location 1
-    agility_trainer_subsection(interested_index=1, time_sleep = 7)
+    agility_trainer_subsection(interested_index=1, time_sleep = 8)
     
     # Starts location 2
     agility_trainer_subsection(interested_index=2, time_sleep = 10)
     
     # Starts location 3
-    agility_trainer_subsection(interested_index=3, time_sleep = 11)
+    agility_trainer_subsection(interested_index=3, time_sleep = 10)
     
     # Starts location 4
-    agility_trainer_subsection(interested_index=4, time_sleep = 7)
+    agility_trainer_subsection(interested_index=4, time_sleep = 6)
     
     # Starts location 5
-    agility_trainer_subsection(interested_index=5, time_sleep = 6)
+    agility_trainer_subsection(interested_index=5, time_sleep = 5)
     
     # Starts location 6
-    agility_trainer_subsection(interested_index=6, time_sleep = 7)
+    agility_trainer_subsection(interested_index=6, time_sleep = 6)
     
     # Starts location 7
-    agility_trainer_subsection(interested_index=7, time_sleep = 6)
+    agility_trainer_subsection(interested_index=7, time_sleep = 5.5)
 
 
 

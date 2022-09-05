@@ -37,13 +37,32 @@ def cursor(x,y):
     win32api.SetCursorPos((x,y))
 
 
-def left_click(x, y, time_sleep = 0):
+def left_click(x, y, time_sleep = 0, should_scaler = False, 
+               should_rand_click = False):
+    if should_scaler:
+        x = int(x*2/3)
+        y = int(y*2/3)
+    if should_rand_click:
+        x = x + random.randint(-8, 8)
+        y = y + random.randint(-8, 8)
     win32api.SetCursorPos((x,y))
     time.sleep(0.1)
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN,x,y,0,0)
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP,x,y,0,0)
     # winsound.Beep(frequency, duration)
     time.sleep(time_sleep)
+    time.sleep(random.randrange(1))
+
+
+def rand_spot(x_min, x_max, y_min, y_max):
+    x_min = int( x_min + 0.3*(x_max-x_min) )
+    x_max = int( x_max - 0.3*(x_max-x_min) )
+    y_min = int( y_min + 0.3*(y_max-y_min) )
+    y_max = int( y_max - 0.3*(y_max-y_min) )
+    
+    x_click = random.randrange(x_min, x_max)
+    y_click = random.randrange(y_min, y_max)
+    return x_click, y_click
 
 
 def fix_minimap():
@@ -139,24 +158,44 @@ def coord_to_move_to(dieCoordinates, die_class_indexes, interested_index=0):
             else:
                 needs_repeat = True
                 enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index-1].tolist()
+            
+            x_click, y_click = rand_spot(enemy_coordinates_list[0][0], 
+                                         enemy_coordinates_list[0][2], 
+                                         enemy_coordinates_list[0][1], 
+                                         enemy_coordinates_list[0][3])
         else:
             needs_repeat = False
             enemy_coordinates_list = dieCoordinates[die_class_indexes == interested_index].tolist()
+            
+            x_click, y_click = rand_spot(enemy_coordinates_list[0][0], 
+                                         enemy_coordinates_list[0][2], 
+                                         enemy_coordinates_list[0][1], 
+                                         enemy_coordinates_list[0][3])
     
-    center_enemy_x = int(enemy_coordinates_list[0][0]
-                        +(enemy_coordinates_list[0][2]-enemy_coordinates_list[0][0])/2
-                        )
+    
     if interested_index == 1:
+        center_enemy_x = int(enemy_coordinates_list[0][0]
+                            +(enemy_coordinates_list[0][2]-enemy_coordinates_list[0][0])/2
+                            )
+        x_click = center_enemy_x
         center_enemy_y = int(enemy_coordinates_list[0][1]
                             +(enemy_coordinates_list[0][3]-enemy_coordinates_list[0][1])/5
                             )
+        y_click = center_enemy_y
     else:
-        center_enemy_y = int(enemy_coordinates_list[0][1]
-                            +(enemy_coordinates_list[0][3]-enemy_coordinates_list[0][1])/2
-                            )
+        
+        x_click, y_click = rand_spot(enemy_coordinates_list[0][0], 
+                                     enemy_coordinates_list[0][2], 
+                                     enemy_coordinates_list[0][1], 
+                                     enemy_coordinates_list[0][3])
 
-    x_move = int( (center_enemy_x + x_screen_start) * 2/3 )
-    y_move = int( (center_enemy_y + y_screen_start) * 2/3 )
+    # x_click, y_click = rand_spot(enemy_coordinates_list[0][0], 
+    #                              enemy_coordinates_list[0][2], 
+    #                              enemy_coordinates_list[0][1], 
+    #                              enemy_coordinates_list[0][3])
+
+    x_move = int( (x_click + x_screen_start) * 2/3 )
+    y_move = int( (y_click + y_screen_start) * 2/3 )
     
     return (x_move, y_move, needs_repeat, skip_to_end)
 
@@ -184,28 +223,28 @@ def agility_trainer():
     fix_minimap()
     
     # Starts location 1
-    agility_trainer_subsection(interested_index=1, time_sleep = 10)
+    agility_trainer_subsection(interested_index=1, time_sleep = 11)
     
     # Starts location 2
-    agility_trainer_subsection(interested_index=2, time_sleep = 5)
+    agility_trainer_subsection(interested_index=2, time_sleep = 7)
     
     # Starts location 3
-    agility_trainer_subsection(interested_index=3, time_sleep = 5)
+    agility_trainer_subsection(interested_index=3, time_sleep = 7)
     
     # Starts location 4
-    agility_trainer_subsection(interested_index=4, time_sleep = 6)
+    agility_trainer_subsection(interested_index=4, time_sleep = 9)
     
     # Starts location 5
-    agility_trainer_subsection(interested_index=5, time_sleep = 5)
+    agility_trainer_subsection(interested_index=5, time_sleep = 7)
     
     # Starts location 6
-    agility_trainer_subsection(interested_index=6, time_sleep = 7)
+    agility_trainer_subsection(interested_index=6, time_sleep = 9)
     
     # Starts location 7
-    agility_trainer_subsection(interested_index=7, time_sleep = 8)
+    agility_trainer_subsection(interested_index=7, time_sleep = 10)
     
     # Starts location 8
-    agility_trainer_subsection(interested_index=8, time_sleep = 5)
+    agility_trainer_subsection(interested_index=8, time_sleep = 7)
 
 
 
