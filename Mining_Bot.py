@@ -40,7 +40,7 @@ SAVE_NAME_OD = "./Models/OSRS_Mining-0.model"
 DATASET_PATH = "./Training_Data/" + SAVE_NAME_OD.split("./Models/",1)[1].split("-",1)[0] +"/"
 IMAGE_SIZE              = int(re.findall(r'\d+', SAVE_NAME_OD)[-1] ) # Row and column number 
 MIN_SCORE               = 0.7
-TIME_BETWEEN_MINING     = 6 # Set 4.0 default for iron ore with mith pick
+TIME_BETWEEN_MINING     = 0.5 # Set 4.0 default for iron ore with mith pick
 
     
 
@@ -312,7 +312,7 @@ def banker():
         x_move = x_click + x_screen_start
         y_move = y_click + y_screen_start
     
-    left_click(x_move, y_move, time_sleep = 4.5)
+    left_click(x_move, y_move, time_sleep = 5)
     # -------------------------------------------------------------------------
     
     
@@ -328,8 +328,8 @@ def banker():
     # -------------------------------------------------------------------------
     
     
-    # Grabs Pickaxe Section
-    # -------------------------------------------------------------------------
+    # # Grabs Pickaxe Section
+    # # -------------------------------------------------------------------------
     # temp_screenshot = ImageGrab.grab(bbox =(screenshot_sizer.size[0]-2100, 
     #                                     0,
     #                                     screenshot_sizer.size[0], 
@@ -349,12 +349,12 @@ def banker():
     #     prediction_1 = model_1([(transformed_image/255).to(device)])
     #     pred_1 = prediction_1[0]
     
-    # dieCoordinates = pred_1['boxes'][pred_1['scores'] > 0.07]
-    # die_class_indexes = pred_1['labels'][pred_1['scores'] > 0.07]
+    # dieCoordinates = pred_1['boxes'][pred_1['scores'] > MIN_SCORE]
+    # die_class_indexes = pred_1['labels'][pred_1['scores'] > MIN_SCORE]
     # # BELOW SHOWS SCORES - COMMENT OUT IF NEEDED
-    # die_scores = pred_1['scores'][pred_1['scores'] > 0.07]
+    # die_scores = pred_1['scores'][pred_1['scores'] > MIN_SCORE]
     
-    # enemy_coordinates_list = dieCoordinates[die_class_indexes == 2].tolist() 
+    # enemy_coordinates_list = dieCoordinates[die_class_indexes == 6].tolist() 
     
     # if len(enemy_coordinates_list) > 0:
     #     center_enemy_x_len_list = []
@@ -390,20 +390,20 @@ def banker():
     # left_click(x_move, y_move, time_sleep = 1)
     
     # ALTERNATIVE
-    left_click(4140, 720, time_sleep = 1)
+    left_click(4140, 720+55*4, time_sleep = 1)
     # -------------------------------------------------------------------------
     
     
     # Runs back section
     # -------------------------------------------------------------------------
-    inv_start_x = 4970 # Iron: 1965; Coal: 4970
-    inv_start_y = 188 # Iron: 150; Coal: 188
+    inv_start_x = 4985 # Iron: 1965; Coal: 4970
+    inv_start_y = 150 # Iron: 150; Coal: 188
     
     x_start = x_screen_start + inv_start_x - x_screen_start
     y_start = y_screen_start + inv_start_y - y_screen_start
     
     
-    left_click(x_start, y_start, time_sleep = 4)
+    left_click(x_start, y_start, time_sleep = 5)
     # -------------------------------------------------------------------------
 
 
@@ -698,7 +698,7 @@ def mining(x_screen_start, y_screen_start, ii, stop_index,
     dieCoordinates = pred_1['boxes'][pred_1['scores'] > MIN_SCORE]
     die_class_indexes = pred_1['labels'][pred_1['scores'] > MIN_SCORE]
     
-    ore_collected_list = dieCoordinates[die_class_indexes == 7].tolist()
+    ore_collected_list = dieCoordinates[die_class_indexes == 8].tolist()
     
     num_ore_collected = len(ore_collected_list)
     # -------------------------------------------------------------------------
@@ -714,7 +714,7 @@ def mining(x_screen_start, y_screen_start, ii, stop_index,
                                        )
                                 )
     
-    # temp_screenshot.save('./Images/Screenshots/image-{}.jpg'.format(ii))
+    # temp_screenshot.save('./Images/Screenshots/image-{}.jpg'.format(ii+1000))
     
     screenshot_cv2 = np.array(temp_screenshot)
     # screenshot_cv2 = cv2.cvtColor(screenshot_cv2, cv2.COLOR_BGR2RGB)
@@ -729,7 +729,7 @@ def mining(x_screen_start, y_screen_start, ii, stop_index,
     dieCoordinates = pred_1['boxes'][pred_1['scores'] > MIN_SCORE]
     die_class_indexes = pred_1['labels'][pred_1['scores'] > MIN_SCORE]
     
-    enemy_coordinates_list = dieCoordinates[die_class_indexes == 5].tolist()
+    enemy_coordinates_list = dieCoordinates[die_class_indexes == 9].tolist()
     # -------------------------------------------------------------------------
     
     # Searches if still mining
@@ -875,8 +875,8 @@ while True:
     num_ore_collected = 99
     force_mine = True
     force_mine_count = 0
+    ii = 0
     while True:
-        ii = 0
         (stop_index, num_ore_collected, 
          force_mine, force_mine_count) = mining(x_screen_start, 
                                                 y_screen_start, 
@@ -886,7 +886,7 @@ while True:
                                                 force_mine,
                                                 force_mine_count
                                                 )
-        if num_ore_collected == 23:
+        if num_ore_collected >= 24:
             break
         ii += 1
     

@@ -20,7 +20,7 @@ from albumentations.pytorch import ToTensorV2
 
 
 # User parameters
-SAVE_NAME      = "./Models/OSRS_Agility-0.model"
+SAVE_NAME      = "./Models/OSRS_Mining-0.model"
 USE_CHECKPOINT = True
 IMAGE_SIZE     = int(re.findall(r'\d+', SAVE_NAME)[-1] ) # Row and column size 
 DATASET_PATH   = "./Training_Data/" + SAVE_NAME.split("./Models/",1)[1].split("-",1)[0] +"/"
@@ -35,9 +35,9 @@ NOISE_PROB          = 0.05  # Default: 0.05
 MOTION_BLUR_PROB    = 0.05  # Default: 0.05
 ROTATION            = 5     # Default: 5
 BRIGHTNESS_CHANGE   = 0.10  # Default: 0.10
-CONTRAST_CHANGE     = 0.05  # Default: 0.05
-SATURATION_CHANGE   = 0.05  # Default: 0.05
-HUE_CHANGE          = 0.05  # Default: 0.05
+CONTRAST_CHANGE     = 0.02  # Default: 0.05
+SATURATION_CHANGE   = 0.02  # Default: 0.05
+HUE_CHANGE          = 0.02  # Default: 0.05
 HORIZ_FLIP_CHANCE   = 0.20  # Default: 0.10
 VERT_FLIP_CHANCE    = 0.20  # Default: 0.10
 

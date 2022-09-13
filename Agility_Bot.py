@@ -22,7 +22,7 @@ import time
 from math import sqrt
 from torchvision.utils import save_image
 import sys
-
+from datetime import datetime
 import win32gui
     
 
@@ -30,7 +30,7 @@ import win32gui
 SAVE_NAME_OD = "./Models/OSRS_Agility-0.model"
 DATASET_PATH = "./Training_Data/" + SAVE_NAME_OD.split("./Models/",1)[1].split("-",1)[0] +"/"
 IMAGE_SIZE              = int(re.findall(r'\d+', SAVE_NAME_OD)[-1] ) # Row and column number 
-MIN_SCORE               = 0.7
+MIN_SCORE               = 0.6
 
 
 def cursor(x,y):
@@ -222,6 +222,14 @@ def agility_trainer_subsection(interested_index=7, time_sleep = 5):
 
 
 def agility_trainer():
+    # Tells the time
+    now = datetime.now()
+    now = now.strftime("%Y/%m/%d - %H:%M:%S")
+    sys.stdout.write('\033[2K\033[1G')
+    print(now,
+          end="\r"
+          )
+    
     # Fixes minimap
     fix_minimap()
     
@@ -235,16 +243,16 @@ def agility_trainer():
     agility_trainer_subsection(interested_index=3, time_sleep = 5)
     
     # Starts location 4
-    agility_trainer_subsection(interested_index=4, time_sleep = 6)
+    agility_trainer_subsection(interested_index=4, time_sleep = 7)
     
     # Starts location 5
-    agility_trainer_subsection(interested_index=5, time_sleep = 5)
+    agility_trainer_subsection(interested_index=5, time_sleep = 6)
     
     # Starts location 6
-    agility_trainer_subsection(interested_index=6, time_sleep = 7)
+    agility_trainer_subsection(interested_index=6, time_sleep = 9)
     
     # Starts location 7
-    agility_trainer_subsection(interested_index=7, time_sleep = 9)
+    agility_trainer_subsection(interested_index=7, time_sleep = 8)
     
     # Starts location 8
     agility_trainer_subsection(interested_index=8, time_sleep = 5)
@@ -252,6 +260,8 @@ def agility_trainer():
 
 
 # Main()
+# ==============================================================================
+
 dataset_path = DATASET_PATH
 
 # Windows beep settings
@@ -267,7 +277,6 @@ n_classes_1 = len(categories.keys())
 categories
 
 classes_1 = [i[1]['name'] for i in categories.items()]
-classes_1
 
 
 
@@ -300,6 +309,9 @@ transforms_1 = A.Compose([
 ])
 
 
+# Makes empty space
+print("")
+
 # Takes screenshot to check size of screen
 screenshot_sizer = ImageGrab.grab()
 
@@ -313,4 +325,5 @@ while True:
 
 
 
+# ==============================================================================
 
