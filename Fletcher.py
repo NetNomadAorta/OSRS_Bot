@@ -48,14 +48,12 @@ def fix_minimap():
     win32api.keybd_event(0x26, 0 ,win32con.KEYEVENTF_KEYUP, 0)
 
 
-def smelter():
-    # Clicks Anvil
-    left_click(4065, 815, time_sleep=1.5)
+def fletcher():
+    # Clicks Item 1
+    left_click(4870, 940, time_sleep=0.5)
     
-    # Clicks item to smith
-    x = 4040-120*0
-    y = 590-80*2
-    left_click(x, y, time_sleep=80)
+    # Clicks Item 1
+    left_click(4870+75, 940, time_sleep=0.5)
 
 
 def banker():
@@ -81,10 +79,10 @@ def banker():
 # Main()
 
 
-for i in range(int(10000/27)):
-    smelter()
+for i in range(100):
+    fletcher()
     
-    banker()
+    # banker()
 
 
 
