@@ -81,7 +81,7 @@ def banker():
 # Main()
 
 
-for i in range(int(10000/27)):
+for i in range(int(8900/27)):
     smelter()
     
     banker()
