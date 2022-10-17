@@ -74,14 +74,14 @@ def banker():
     left_click(3635, 725, time_sleep=0.5)
     
     # Runs to anvil
-    left_click(4955, 220, time_sleep=5, should_rand_click = False)
+    left_click(4955+0, 220+0, time_sleep=5, should_rand_click = False)
 
 
 
 # Main()
 
 
-for i in range(int(8900/27)):
+for i in range(int(4320/27)):
     smelter()
     
     banker()
