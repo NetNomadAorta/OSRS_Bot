@@ -66,7 +66,7 @@ def left_click(x, y, time_sleep = 0, should_scaler = True,
 
 def fix_minimap():
     
-    left_click(4820, 70, time_sleep = 0.6, should_scaler=False)
+    left_click(964, 37, time_sleep = 0.6, should_scaler=False)
     
     win32api.keybd_event(0x26, 0,0,0)
     time.sleep(0.6)
@@ -75,11 +75,11 @@ def fix_minimap():
 
 def smelter():
     # Clicks Anvil
-    left_click(4065, 815, time_sleep=1.5)
+    left_click(813, 435, time_sleep=1.5)
     
     # Clicks item to smith
-    x = 4040-120*0
-    y = 590-80*2
+    x = 808-24*0
+    y = 315-43*2
     left_click(x, y, time_sleep=80)
 
 
@@ -87,19 +87,19 @@ def banker():
     fix_minimap()
     
     # Runs to bank
-    left_click(4921, 112, time_sleep=5, should_rand_click = False)
+    left_click(984, 60, time_sleep=5, should_rand_click = False)
     
     # Clicks bank
-    left_click(4170, 650, time_sleep=1)
+    left_click(834, 347, time_sleep=1)
     
     # Deposits all
-    left_click(4870, 940, time_sleep=0.5)
+    left_click(974, 940, time_sleep=0.5)
     
     # Withdraw bars
-    left_click(3635, 725, time_sleep=0.5)
+    left_click(727, 501, time_sleep=0.5)
     
     # Runs to anvil
-    left_click(4955+0, 220+0, time_sleep=5, should_rand_click = False)
+    left_click(991+0, 117+0, time_sleep=5, should_rand_click = False)
 
 
 
@@ -109,6 +109,7 @@ keyboard = Controller()
 altTab()
 time.sleep(1)
 
+# resolution: VM: 1024 x 768; PC: 5120 x 1440
 
 for i in range(int(4320/27)):
     smelter()
