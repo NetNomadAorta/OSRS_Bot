@@ -6,7 +6,6 @@ import time
 import win32api, win32con
 import random
 from pynput.keyboard import Key, Controller
-from datetime import datetime
 
 
 # User parameters
@@ -107,64 +106,18 @@ def banker():
 
 def logger():
     # Clicks X Button
-    left_click(0.97, 0.03, time_sleep = 1)
-    
-    # Clicks Logout Button
-    left_click(0.91, 0.88, time_sleep = 1)
-    
-    # Sleeps
-    time.sleep(10)
-    
-    # Click Existing Log In
-    left_click(0.54, 0.33, time_sleep = 1)
-    
-    # Types password in
-    typeThis("1Nomad2")
-    
-    # Sleeps
-    time.sleep(10)
-    
-    # Click to Play
-    left_click(0.52, 0.35, time_sleep = 5)
-    
-    # Clicks Inventory
-    left_click(0.82, 0.943, time_sleep = 1)
-    
+    left_click(0.91, 0.05, time_sleep = 0.6)
 
 
 
 # Main()
 keyboard = Controller()
 
-# Gets date and time
-now = datetime.now()
-hour = int(now.strftime("%H"))
-# Checks if appropriate time to bot
-if (hour >= 7 and hour <= 24) or hour <= 2:
-    should_continue = True
-else:
-    should_continue = False
-
 altTab()
 time.sleep(1)
 
-while should_continue:
 
-    for i in range(int(4320/27)):
-        smelter()
-        
-        banker()
-    
-    logger()
-    
-    # Gets date and time
-    now = datetime.now()
-    hour = int(now.strftime("%H"))
-    # Checks if appropriate time to bot
-    if (hour >= 7 and hour <= 24) or hour <= 2:
-        should_continue = True
-    else:
-        should_continue = False
+left_click(0.82, 0.943, time_sleep = 0.6)
 
 
 
