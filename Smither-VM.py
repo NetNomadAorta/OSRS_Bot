@@ -68,7 +68,7 @@ def left_click(x, y, time_sleep = 0, should_rand_click = True):
 
 def fix_minimap():
     
-    left_click(820, 50, time_sleep = 0.6, should_scaler=False)
+    left_click(0.895, 0.05, time_sleep = 0.6)
     
     win32api.keybd_event(0x26, 0,0,0)
     time.sleep(0.6)
