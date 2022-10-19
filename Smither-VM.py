@@ -122,7 +122,7 @@ def logger():
     typeThis("1Nomad2")
     
     # Sleeps
-    time.sleep(10)
+    time.sleep(10 + random.randrange(1000))
     
     # Click to Play
     left_click(0.52, 0.35, time_sleep = 5)
