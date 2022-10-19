@@ -5,6 +5,7 @@ warnings.filterwarnings("ignore")
 import time
 import win32api, win32con
 import random
+from pynput.keyboard import Key, Controller
 
 
 # User parameters
@@ -13,6 +14,30 @@ DATASET_PATH = "./Training_Data/" + SAVE_NAME_OD.split("./Models/",1)[1].split("
 IMAGE_SIZE              = int(re.findall(r'\d+', SAVE_NAME_OD)[-1] ) # Row and column number 
 MIN_SCORE               = 0.7
 TIME_BETWEEN_MINING     = 4 # Set 2.0 default for one pick iron
+# User Parameters/Constants to Set
+XML_DIR = "./XML_Files/"
+SLEEP_TIME_BETWEEN_TYPETHIS = 0.01
+SLEEP_TIME_BETWEEN_LETTER = 0.01
+
+
+# Presses Alt + Tab
+def altTab():
+    time.sleep(SLEEP_TIME_BETWEEN_TYPETHIS)
+    with keyboard.pressed(Key.alt):
+        keyboard.press(Key.tab)
+        keyboard.release(Key.tab)
+
+
+# Type's in string
+def typeThis(toType):
+    time.sleep(SLEEP_TIME_BETWEEN_TYPETHIS)
+    for letter in toType:
+        keyboard.type(letter)
+        time.sleep(SLEEP_TIME_BETWEEN_LETTER)
+    time.sleep(SLEEP_TIME_BETWEEN_TYPETHIS)
+    keyboard.press(Key.enter)
+    keyboard.release(Key.enter)
+    time.sleep(SLEEP_TIME_BETWEEN_TYPETHIS)
 
 
 def cursor(x,y, should_scaler = True):
@@ -79,6 +104,10 @@ def banker():
 
 
 # Main()
+keyboard = Controller()
+
+altTab()
+time.sleep(1)
 
 
 for i in range(int(4320/27)):
