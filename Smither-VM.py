@@ -105,58 +105,7 @@ def banker():
     left_click(0.945, 0.147, time_sleep=5, should_rand_click = False)
 
 
-def logger():
-    # Clicks X Button
-    left_click(0.97, 0.03, time_sleep = 1)
-    
-    # Clicks Logout Button
-    left_click(0.91, 0.88, time_sleep = 1)
-    
-    # Sleeps
-    time.sleep(10)
-    
-    # Click Existing Log In
-    left_click(0.54, 0.33, time_sleep = 1)
-    
-    # Types password in
-    typeThis("1Nomad2")
-    
-    # Sleeps
-    time.sleep(10 + random.randrange(500))
-    
-    # Click to Play
-    left_click(0.52, 0.35, time_sleep = 5)
-    
-    # Clicks Inventory
-    left_click(0.82, 0.943, time_sleep = 1)
-    
-
-
-
-# Main()
-keyboard = Controller()
-
-# Gets date and time
-now = datetime.now()
-hour = int(now.strftime("%H"))
-# Checks if appropriate time to bot
-if (hour >= 7 and hour <= 24) or hour <= 2:
-    should_continue = True
-else:
-    should_continue = False
-
-altTab()
-time.sleep(1)
-
-while should_continue:
-
-    for i in range(int(4320/27)):
-        smelter()
-        
-        banker()
-    
-    logger()
-    
+def date_time():
     # Gets date and time
     now = datetime.now()
     hour = int(now.strftime("%H"))
@@ -165,6 +114,73 @@ while should_continue:
         should_continue = True
     else:
         should_continue = False
+    return should_continue
+
+
+def logout():
+    # Clicks X Button
+    left_click(0.97, 0.03, time_sleep = 1)
+    
+    # Clicks Logout Button
+    left_click(0.97, 0.90, time_sleep = 1)
+
+
+def login():
+    # Click Existing Log In
+    left_click(0.54, 0.33, time_sleep = 1)
+    
+    # Types password in
+    typeThis("1Nomad2")
+    
+    # Sleeps
+    time.sleep(10)
+    
+    # Click to Play
+    left_click(0.52, 0.35, time_sleep = 5)
+    
+    # Clicks Inventory
+    left_click(0.82, 0.943, time_sleep = 1)
+
+
+
+def logger():
+    logout()
+    
+    # Sleeps
+    time.sleep(10 + random.randrange(500))
+    
+    login()
+    
+
+
+
+# Main()
+keyboard = Controller()
+
+should_continue = date_time()
+
+altTab()
+time.sleep(1)
+
+while True:
+    if not should_continue:
+        time.sleep(60*30)
+        should_continue = date_time()
+        
+        if should_continue:
+            login()
+        
+    
+    while should_continue:
+    
+        for i in range(int(2160/27)):
+            smelter()
+            
+            banker()
+        
+        logger()
+        
+        should_continue = date_time()
 
 
 

@@ -117,7 +117,7 @@ altTab()
 time.sleep(1)
 
 
-left_click(0.82, 0.943, time_sleep = 0.6)
+left_click(0.97, 0.90, time_sleep = 0.6)
 
 
 
