@@ -123,6 +123,7 @@ def logout():
     
     # Clicks Logout Button
     left_click(0.97, 0.90, time_sleep = 1)
+    left_click(0.94, 0.89, time_sleep = 1)
 
 
 def login():
@@ -173,7 +174,7 @@ while True:
     
     while should_continue:
     
-        for i in range(int(2160/27)):
+        for i in range(int(1620/27)):
             smelter()
             
             banker()
