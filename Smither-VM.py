@@ -78,31 +78,31 @@ def fix_minimap():
 
 def smelter():
     # Clicks Anvil
-    left_click(0.495, 0.580, time_sleep=1.5)
+    left_click(0.495, 0.580, time_sleep=2)
     
     # Clicks item to smith
     x = 0.49-0.055*0
     y = 0.41-0.055*2
-    left_click(x, y, time_sleep=80)
+    left_click(x, y, time_sleep=85)
 
 
 def banker():
     fix_minimap()
     
     # Runs to bank
-    left_click(0.931, 0.072, time_sleep=5, should_rand_click = False)
+    left_click(0.931, 0.072, time_sleep=6, should_rand_click = False)
     
     # Clicks bank
     left_click(0.54, 0.45, time_sleep=1)
     
     # Deposits all
-    left_click(0.92, 0.67, time_sleep=0.5)
+    left_click(0.92, 0.67, time_sleep=1)
     
     # Withdraw bars
-    left_click(0.35, 0.495, time_sleep=0.5)
+    left_click(0.35, 0.495, time_sleep=1)
     
     # Runs to anvil
-    left_click(0.945, 0.147, time_sleep=5, should_rand_click = False)
+    left_click(0.945, 0.147, time_sleep=6, should_rand_click = False)
 
 
 def date_time():
