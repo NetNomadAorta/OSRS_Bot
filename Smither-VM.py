@@ -131,7 +131,7 @@ def login():
     left_click(0.54, 0.33, time_sleep = 1)
     
     # Types password in
-    typeThis("1Nomad2")
+    typeThis("Barbri12")
     
     # Sleeps
     time.sleep(10)
